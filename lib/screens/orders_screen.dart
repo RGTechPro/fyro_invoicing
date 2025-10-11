@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../models/order.dart';
 import '../providers/order_provider.dart';
-import '../services/thermal_printer_service.dart';
+import '../services/printing_service.dart';
 import '../theme/app_theme.dart';
 
 class OrdersScreen extends ConsumerStatefulWidget {
@@ -550,13 +550,13 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
       // Refresh history
       ref.read(orderHistoryProvider.notifier).refresh();
 
-      // Print customer copy on thermal printer
-      ThermalPrinterService.printReceipt(order, isCustomerCopy: true);
+      // Print customer copy
+      await PrintingService.printCustomerCopy(order);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Order completed and customer copy sent to thermal printer!'),
+            content: Text('Order completed and customer copy sent to printer!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -575,12 +575,12 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
 
   void _printStoreCopy(Order order) async {
     try {
-      ThermalPrinterService.printReceipt(order, isCustomerCopy: false);
+      await PrintingService.printStoreCopy(order);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Store copy sent to thermal printer!'),
+            content: Text('Store copy sent to printer!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -599,8 +599,8 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
 
   void _previewReceipt(Order order) async {
     try {
-      // Preview customer copy in browser
-      ThermalPrinterService.previewReceipt(order, isCustomerCopy: true);
+      // Preview customer copy by default
+      await PrintingService.printCustomerCopy(order, showPreview: true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/order.dart';
 import '../providers/order_provider.dart';
 import '../services/printing_service.dart';
+import '../services/thermal_printer_service.dart';
 import '../theme/app_theme.dart';
 
 class HistoryScreen extends ConsumerStatefulWidget {
@@ -442,12 +443,12 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   void _reprintCustomerCopy(Order order) async {
     try {
-      await PrintingService.printCustomerCopy(order);
+      ThermalPrinterService.printReceipt(order, isCustomerCopy: true);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Customer copy sent to printer'),
+            content: Text('Customer copy sent to thermal printer'),
             backgroundColor: Colors.green,
           ),
         );
@@ -466,12 +467,12 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   void _reprintStoreCopy(Order order) async {
     try {
-      await PrintingService.printStoreCopy(order);
+      ThermalPrinterService.printReceipt(order, isCustomerCopy: false);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Store copy sent to printer'),
+            content: Text('Store copy sent to thermal printer'),
             backgroundColor: Colors.green,
           ),
         );

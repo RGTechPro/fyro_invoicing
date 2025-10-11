@@ -83,13 +83,17 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
       );
     }
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final crossAxisCount = screenWidth < 600 ? 1 : (screenWidth < 1024 ? 2 : 3);
+    final childAspectRatio = screenWidth < 600 ? 2.5 : 0.85;
+
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 0.85,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
+      padding: EdgeInsets.all(screenWidth < 600 ? 8 : 16),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        childAspectRatio: childAspectRatio,
+        crossAxisSpacing: screenWidth < 600 ? 8 : 16,
+        mainAxisSpacing: screenWidth < 600 ? 8 : 16,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
@@ -99,15 +103,87 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
   }
 
   Widget _buildMenuItemCard(MenuItem item) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    final isVeg = item.category == MenuCategory.veg;
+    final firstPrice = item.prices.values.first;
+    
     return Card(
       elevation: 3,
       child: InkWell(
         onTap: () => _showAddToOrderDialog(item),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: EdgeInsets.all(isMobile ? 8 : 12),
+          child: isMobile
+              ? Row( // Horizontal layout for mobile
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Icon
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isVeg
+                            ? Colors.green.withOpacity(0.1)
+                            : AppTheme.accentRed.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        isVeg ? Icons.eco : Icons.local_fire_department,
+                        color: isVeg ? Colors.green : AppTheme.accentRed,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Content
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            item.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          if (item.description.isNotEmpty) ...[
+                            Text(
+                              item.description,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                          ],
+                          Text(
+                            '₹${firstPrice.toStringAsFixed(0)}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.secondaryGold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Add button
+                    IconButton(
+                      onPressed: () => _showAddToOrderDialog(item),
+                      icon: const Icon(Icons.add_circle),
+                      color: AppTheme.secondaryGold,
+                      iconSize: 32,
+                    ),
+                  ],
+                )
+              : Column( // Vertical layout for desktop/tablet
+                  crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Category badge
               Container(

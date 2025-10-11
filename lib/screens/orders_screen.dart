@@ -160,6 +160,8 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
   }
 
   Widget _buildOrderView(Order order) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    
     return Row(
       children: [
         // Order items list
@@ -176,7 +178,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
         // Order summary and actions
         Expanded(
           flex: 2,
-          child: _buildOrderSummary(order),
+          child: _buildOrderSummary(order, isMobile),
         ),
       ],
     );
@@ -333,30 +335,30 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
     );
   }
 
-  Widget _buildOrderSummary(Order order) {
+  Widget _buildOrderSummary(Order order, bool isMobile) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isMobile ? 12 : 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Order ID
           Text(
             'Order #${order.orderId}',
-            style: const TextStyle(
-              fontSize: 24,
+            style: TextStyle(
+              fontSize: isMobile ? 20 : 24,
               fontWeight: FontWeight.bold,
               color: AppTheme.primaryBlack,
             ),
           ),
           Text(
             _timeFormat.format(order.createdAt),
-            style: const TextStyle(
-              fontSize: 14,
+            style: TextStyle(
+              fontSize: isMobile ? 12 : 14,
               color: AppTheme.mediumGrey,
             ),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: isMobile ? 16 : 24),
 
           // Customer name (optional)
           TextField(
@@ -455,25 +457,31 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
             FilledButton.icon(
               onPressed: () => _completeOrderWithCustomerCopy(order),
               icon: const Icon(Icons.print),
-              label: const Text('Complete & Print Customer Copy'),
+              label: Text(isMobile ? 'Complete & Print' : 'Complete & Print Customer Copy'),
               style: FilledButton.styleFrom(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(isMobile ? 16 : 20),
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: isMobile ? 8 : 12),
             // Print store copy button
             ElevatedButton.icon(
               onPressed: () => _printStoreCopy(order),
               icon: const Icon(Icons.receipt_long),
               label: const Text('Print Store Copy'),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.all(isMobile ? 12 : 16),
+              ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: isMobile ? 8 : 12),
             ElevatedButton.icon(
               onPressed: () => _previewReceipt(order),
               icon: const Icon(Icons.visibility),
               label: const Text('Preview Receipt'),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.all(isMobile ? 12 : 16),
+              ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: isMobile ? 8 : 12),
             OutlinedButton.icon(
               onPressed: () => _cancelOrder(order.orderId),
               icon: const Icon(Icons.cancel, color: Colors.red),

@@ -27,67 +27,78 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final currentOrders = ref.watch(ordersProvider);
     final todaysSales = ref.watch(todaysSalesProvider);
     final todaysOrderCount = ref.watch(todaysOrderCountProvider);
+    final isSmallScreen = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.local_fire_department, size: 28),
-            const SizedBox(width: 8),
-            const Text('BIRYANI BY FLAME'),
+            Icon(Icons.local_fire_department, size: isSmallScreen ? 20 : 28),
+            SizedBox(width: isSmallScreen ? 4 : 8),
+            Text(
+              isSmallScreen ? 'BBF' : 'BIRYANI BY FLAME',
+              style: TextStyle(fontSize: isSmallScreen ? 16 : 20),
+            ),
           ],
         ),
         actions: [
-          // Today's stats
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            margin: const EdgeInsets.only(right: 8),
-            decoration: BoxDecoration(
-              color: AppTheme.darkGrey,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '₹${todaysSales.toStringAsFixed(0)}',
-                  style: const TextStyle(
-                    color: AppTheme.secondaryGold,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+          // Today's stats - hide on very small screens
+          if (!isSmallScreen || MediaQuery.of(context).size.width >= 400)
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: isSmallScreen ? 8 : 16,
+                vertical: isSmallScreen ? 4 : 8,
+              ),
+              margin: EdgeInsets.only(right: isSmallScreen ? 4 : 8),
+              decoration: BoxDecoration(
+                color: AppTheme.darkGrey,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    isSmallScreen
+                        ? '₹${(todaysSales / 1000).toStringAsFixed(1)}k'
+                        : '₹${todaysSales.toStringAsFixed(0)}',
+                    style: TextStyle(
+                      color: AppTheme.secondaryGold,
+                      fontSize: isSmallScreen ? 12 : 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                Text(
-                  '$todaysOrderCount orders today',
-                  style: const TextStyle(
-                    color: AppTheme.lightGold,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
+                  if (!isSmallScreen)
+                    Text(
+                      '$todaysOrderCount orders today',
+                      style: const TextStyle(
+                        color: AppTheme.lightGold,
+                        fontSize: 10,
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
           // Active orders badge
           if (currentOrders.isNotEmpty)
             Container(
-              padding: const EdgeInsets.all(12),
-              margin: const EdgeInsets.only(right: 16),
+              padding: EdgeInsets.all(isSmallScreen ? 8 : 12),
+              margin: EdgeInsets.only(right: isSmallScreen ? 8 : 16),
               decoration: BoxDecoration(
                 color: AppTheme.accentRed,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.shopping_cart,
-                      color: Colors.white, size: 20),
-                  const SizedBox(width: 8),
+                  Icon(Icons.shopping_cart,
+                      color: Colors.white, size: isSmallScreen ? 16 : 20),
+                  SizedBox(width: isSmallScreen ? 4 : 8),
                   Text(
                     '${currentOrders.length}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: isSmallScreen ? 14 : 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -96,8 +107,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
         ],
       ),
-      body: Row(
-        children: [
+      body: isSmallScreen
+          ? _screens[_selectedIndex] // No sidebar on mobile
+          : Row(
+              children: [
           // Sidebar navigation
           NavigationRail(
             selectedIndex: _selectedIndex,
@@ -150,6 +163,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: isSmallScreen
+          ? BottomNavigationBar(
+              currentIndex: _selectedIndex,
+              onTap: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              backgroundColor: AppTheme.primaryBlack,
+              selectedItemColor: AppTheme.secondaryGold,
+              unselectedItemColor: AppTheme.mediumGrey,
+              type: BottomNavigationBarType.fixed,
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.restaurant_menu),
+                  label: 'Menu',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.shopping_cart),
+                  label: 'Orders',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.history),
+                  label: 'History',
+                ),
+              ],
+            )
+          : null,
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton.extended(
               onPressed: () {
@@ -162,7 +203,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 });
               },
               icon: const Icon(Icons.add_shopping_cart),
-              label: const Text('New Order'),
+              label: Text(isSmallScreen ? 'New' : 'New Order'),
             )
           : null,
     );

@@ -106,7 +106,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
     final isMobile = MediaQuery.of(context).size.width < 600;
     final isVeg = item.category == MenuCategory.veg;
     final firstPrice = item.prices.values.first;
-    
+
     return Card(
       elevation: 3,
       child: InkWell(
@@ -115,23 +115,56 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
         child: Padding(
           padding: EdgeInsets.all(isMobile ? 8 : 12),
           child: isMobile
-              ? Row( // Horizontal layout for mobile
+              ? Row(
+                  // Horizontal layout for mobile
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Icon
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isVeg
-                            ? Colors.green.withOpacity(0.1)
-                            : AppTheme.accentRed.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        isVeg ? Icons.eco : Icons.local_fire_department,
-                        color: isVeg ? Colors.green : AppTheme.accentRed,
-                        size: 24,
-                      ),
+                    // Image
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: item.imagePath != null
+                          ? Image.asset(
+                              item.imagePath!,
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 80,
+                                  height: 80,
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: isVeg
+                                        ? Colors.green.withOpacity(0.1)
+                                        : AppTheme.accentRed.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    isVeg
+                                        ? Icons.eco
+                                        : Icons.local_fire_department,
+                                    color: isVeg ? Colors.green : AppTheme.accentRed,
+                                    size: 24,
+                                  ),
+                                );
+                              },
+                            )
+                          : Container(
+                              width: 80,
+                              height: 80,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: isVeg
+                                    ? Colors.green.withOpacity(0.1)
+                                    : AppTheme.accentRed.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                isVeg ? Icons.eco : Icons.local_fire_department,
+                                color: isVeg ? Colors.green : AppTheme.accentRed,
+                                size: 24,
+                              ),
+                            ),
                     ),
                     const SizedBox(width: 12),
                     // Content
@@ -182,109 +215,141 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                     ),
                   ],
                 )
-              : Column( // Vertical layout for desktop/tablet
-                  crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Category badge
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: _getCategoryColor(item.category),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  item.getCategoryName(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              // Item name
-              Expanded(
-                child: Text(
-                  item.name,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    height: 1.2,
-                  ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              // Prices
-              if (item.prices.length == 1) ...[
-                Text(
-                  '₹${item.prices.values.first.toStringAsFixed(0)}',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.accentRed,
-                  ),
-                ),
-              ] else ...[
-                Column(
+              : Column(
+                  // Vertical layout for desktop/tablet
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        const Text(
-                          'Serves 1: ',
-                          style: TextStyle(fontSize: 11),
+                    // Image
+                    if (item.imagePath != null)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset(
+                          item.imagePath!,
+                          width: double.infinity,
+                          height: 120,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              width: double.infinity,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                color: _getCategoryColor(item.category)
+                                    .withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.restaurant,
+                                size: 40,
+                                color: _getCategoryColor(item.category),
+                              ),
+                            );
+                          },
                         ),
-                        Text(
-                          '₹${item.getPrice('serves1').toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.accentRed,
-                          ),
+                      ),
+
+                    const SizedBox(height: 8),
+
+                    // Category badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _getCategoryColor(item.category),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        item.getCategoryName(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
                         ),
-                      ],
+                      ),
                     ),
-                    Row(
-                      children: [
-                        const Text(
-                          'Serves 2: ',
-                          style: TextStyle(fontSize: 11),
+
+                    const SizedBox(height: 8),
+
+                    // Item name
+                    Expanded(
+                      child: Text(
+                        item.name,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          height: 1.2,
                         ),
-                        Text(
-                          '₹${item.getPrice('serves2').toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.accentRed,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // Prices
+                    if (item.prices.length == 1) ...[
+                      Text(
+                        '₹${item.prices.values.first.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.accentRed,
+                        ),
+                      ),
+                    ] else ...[
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Text(
+                                'Serves 1: ',
+                                style: TextStyle(fontSize: 11),
+                              ),
+                              Text(
+                                '₹${item.getPrice('serves1').toStringAsFixed(0)}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.accentRed,
+                                ),
+                              ),
+                            ],
                           ),
+                          Row(
+                            children: [
+                              const Text(
+                                'Serves 2: ',
+                                style: TextStyle(fontSize: 11),
+                              ),
+                              Text(
+                                '₹${item.getPrice('serves2').toStringAsFixed(0)}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.accentRed,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+
+                    const SizedBox(height: 8),
+
+                    // Add button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => _showAddToOrderDialog(item),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
                         ),
-                      ],
+                        child: const Text('Add to Order'),
+                      ),
                     ),
                   ],
                 ),
-              ],
-
-              const SizedBox(height: 8),
-
-              // Add button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => _showAddToOrderDialog(item),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                  ),
-                  child: const Text('Add to Order'),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

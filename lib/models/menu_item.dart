@@ -22,12 +22,15 @@ class MenuItem {
 
   final String description;
 
+  final String? imagePath;
+
   MenuItem({
     required this.id,
     required this.name,
     required this.category,
     required this.prices,
     this.description = '',
+    this.imagePath,
   });
 
   double getPrice(String servingSize) {

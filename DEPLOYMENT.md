@@ -40,6 +40,7 @@ git push -u origin main
 ### 5. Access Your Site
 
 After deployment completes (2-3 minutes), your site will be available at:
+
 ```
 https://YOUR_USERNAME.github.io/fyro_invoicing/
 ```
@@ -83,6 +84,7 @@ gh-pages -d build/web
 The app is configured to work at: `https://YOUR_USERNAME.github.io/fyro_invoicing/`
 
 If you want to use a custom domain or different repository name:
+
 1. Update the `--base-href` in `.github/workflows/deploy.yml`
 2. Rebuild: `flutter build web --release --base-href "/YOUR_REPO_NAME/"`
 
@@ -91,10 +93,12 @@ If you want to use a custom domain or different repository name:
 To use a custom domain like `biryani.yourdomain.com`:
 
 1. Update `.github/workflows/deploy.yml`:
+
    - Change `--base-href` to `"/"`
    - Set `cname: biryani.yourdomain.com`
 
 2. Add DNS records in your domain provider:
+
    ```
    Type: CNAME
    Name: biryani
@@ -108,15 +112,18 @@ To use a custom domain like `biryani.yourdomain.com`:
 ### Troubleshooting
 
 **Problem: Site shows 404**
+
 - Check the base-href matches your repository name
 - Ensure GitHub Pages is enabled in Settings
 - Wait 2-3 minutes after first deployment
 
 **Problem: Build fails**
+
 - Check Flutter version in workflow matches your local version
 - Verify all dependencies in `pubspec.yaml` are valid
 
 **Problem: App doesn't work on GitHub Pages**
+
 - Check browser console for errors
 - Verify base-href is correct
 - Test build locally first: `flutter run -d chrome --release`
@@ -126,11 +133,13 @@ To use a custom domain like `biryani.yourdomain.com`:
 ## Automated Updates
 
 Every time you push to the `main` branch:
+
 1. GitHub Actions automatically builds the app
 2. Deploys to GitHub Pages
 3. Your site updates within 2-3 minutes
 
 To push updates:
+
 ```bash
 git add .
 git commit -m "Description of changes"
@@ -170,11 +179,13 @@ python3 -m http.server 8000
 ## Next Steps After Deployment
 
 1. **Test the deployed site thoroughly**
+
    - Test all features (menu, orders, printing)
    - Check on different devices/browsers
    - Verify printing functionality
 
 2. **Share the URL**
+
    - Bookmark the site
    - Add to home screen on tablets
    - Share with team members
@@ -189,6 +200,7 @@ python3 -m http.server 8000
 ## Security Note
 
 This is a client-side web app with local storage (Hive). Data is stored in the browser's IndexedDB. For production use with sensitive data, consider:
+
 - Adding authentication
 - Backend database
 - Secure data transmission

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/order.dart';
 import '../providers/order_provider.dart';
 import '../services/printing_service.dart';
+import '../services/excel_export_service.dart';
 import '../theme/app_theme.dart';
 
 class HistoryScreen extends ConsumerStatefulWidget {
@@ -67,6 +68,20 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               ),
 
               const SizedBox(width: 16),
+
+              // Export to Excel button
+              ElevatedButton.icon(
+                onPressed: () => _showExportDialog(),
+                icon: const Icon(Icons.file_download, size: 20),
+                label: const Text('Export'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.secondaryGold,
+                  foregroundColor: AppTheme.primaryBlack,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+              ),
+
+              const SizedBox(width: 8),
 
               // Refresh button
               IconButton(
@@ -538,6 +553,255 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             backgroundColor: Colors.orange,
           ),
         );
+      }
+    }
+  }
+
+  void _showExportDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Export Orders to Excel'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Select export period:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            _buildExportOption(
+              'Today',
+              'Export today\'s orders',
+              Icons.today,
+              () => _exportOrders(ExportPeriod.daily),
+            ),
+            _buildExportOption(
+              'This Week',
+              'Export this week\'s orders',
+              Icons.date_range,
+              () => _exportOrders(ExportPeriod.weekly),
+            ),
+            _buildExportOption(
+              'This Month',
+              'Export this month\'s orders',
+              Icons.calendar_month,
+              () => _exportOrders(ExportPeriod.monthly),
+            ),
+            _buildExportOption(
+              'Custom Range',
+              'Choose date range',
+              Icons.calendar_today,
+              () => _showCustomDateRangePicker(),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExportOption(
+    String title,
+    String subtitle,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
+    return InkWell(
+      onTap: () {
+        Navigator.pop(context);
+        onTap();
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.secondaryGold.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: AppTheme.primaryBlack),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios, size: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _exportOrders(ExportPeriod period) async {
+    final allOrders = ref.read(orderHistoryProvider);
+    
+    // Filter orders based on period
+    final now = DateTime.now();
+    List<Order> ordersToExport = [];
+
+    switch (period) {
+      case ExportPeriod.daily:
+        ordersToExport = allOrders.where((order) {
+          final orderDate = order.createdAt;
+          return orderDate.year == now.year &&
+              orderDate.month == now.month &&
+              orderDate.day == now.day;
+        }).toList();
+        break;
+
+      case ExportPeriod.weekly:
+        final weekStart = now.subtract(Duration(days: now.weekday - 1));
+        ordersToExport = allOrders.where((order) {
+          return order.createdAt.isAfter(weekStart) &&
+              order.createdAt.isBefore(now.add(const Duration(days: 1)));
+        }).toList();
+        break;
+
+      case ExportPeriod.monthly:
+        ordersToExport = allOrders.where((order) {
+          final orderDate = order.createdAt;
+          return orderDate.year == now.year && orderDate.month == now.month;
+        }).toList();
+        break;
+
+      case ExportPeriod.custom:
+        // Handled by custom date picker
+        return;
+    }
+
+    if (ordersToExport.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No orders found for the selected period'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      await ExcelExportService.exportOrders(
+        orders: ordersToExport,
+        period: period,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Exported ${ordersToExport.length} orders to Excel'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showCustomDateRangePicker() async {
+    final now = DateTime.now();
+    final DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: now,
+      initialDateRange: DateTimeRange(
+        start: now.subtract(const Duration(days: 30)),
+        end: now,
+      ),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppTheme.secondaryGold,
+              onPrimary: AppTheme.primaryBlack,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      final allOrders = ref.read(orderHistoryProvider);
+      final ordersToExport = allOrders.where((order) {
+        return order.createdAt.isAfter(picked.start) &&
+            order.createdAt.isBefore(picked.end.add(const Duration(days: 1)));
+      }).toList();
+
+      if (ordersToExport.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No orders found in the selected date range'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+
+      try {
+        await ExcelExportService.exportOrders(
+          orders: ordersToExport,
+          period: ExportPeriod.custom,
+          startDate: picked.start,
+          endDate: picked.end,
+        );
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Exported ${ordersToExport.length} orders to Excel'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error exporting: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }

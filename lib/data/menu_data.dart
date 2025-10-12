@@ -13,6 +13,7 @@ class MenuData {
       },
       description:
           'Aromatic Hyderabadi style chicken dum biryani served with cooling raita',
+      imagePath: 'images/Hyderbadi chicken dum biryani.jpg',
     ),
     MenuItem(
       id: 'nv_kolkata_chicken',
@@ -23,6 +24,7 @@ class MenuData {
         'serves2': 458.0,
       },
       description: 'Traditional Kolkata style chicken dum biryani with raita',
+      imagePath: 'images/Kolkata chicken dum biryani.jpg',
     ),
     MenuItem(
       id: 'nv_chicken_65_biryani',
@@ -33,6 +35,7 @@ class MenuData {
         'serves2': 448.0,
       },
       description: 'Spicy chicken 65 biryani served with raita',
+      imagePath: 'images/chicken 65 biryani.jpg',
     ),
     MenuItem(
       id: 'nv_boneless_hyderabadi',
@@ -43,6 +46,7 @@ class MenuData {
         'serves2': 448.0,
       },
       description: 'Boneless chicken Hyderabadi dum biryani with raita',
+      imagePath: 'images/Boneless Hyderabadi chicken dum biryani.jpg',
     ),
 
     // Veg Items
@@ -55,6 +59,7 @@ class MenuData {
         'serves2': 448.0,
       },
       description: 'Delicious paneer 65 biryani with raita',
+      imagePath: 'images/paneer 65 biryani.jpg',
     ),
     MenuItem(
       id: 'v_hyderabadi_paneer',
@@ -65,6 +70,7 @@ class MenuData {
         'serves2': 448.0,
       },
       description: 'Hyderabadi style paneer dum biryani with raita',
+      imagePath: 'images/Hyderbadi paneer dum biryani.jpg',
     ),
     MenuItem(
       id: 'v_mushroom_65_biryani',
@@ -75,6 +81,7 @@ class MenuData {
         'serves2': 438.0,
       },
       description: 'Tasty mushroom 65 biryani with raita',
+      imagePath: 'images/mushroom 65 biryani.jpg',
     ),
     MenuItem(
       id: 'v_aloo_65_biryani',
@@ -85,6 +92,7 @@ class MenuData {
         'serves2': 408.0,
       },
       description: 'Flavorful aloo 65 biryani with raita',
+      imagePath: 'images/aloo 65 biryani.jpg',
     ),
 
     // Starters
@@ -96,6 +104,7 @@ class MenuData {
         'single': 179.0,
       },
       description: 'Crispy and spicy paneer 65',
+      imagePath: 'images/paneer 65.jpg',
     ),
     MenuItem(
       id: 's_chicken_65',
@@ -105,6 +114,7 @@ class MenuData {
         'single': 209.0,
       },
       description: 'Classic spicy chicken 65',
+      imagePath: 'images/chicken 65.jpg',
     ),
     MenuItem(
       id: 's_aloo_65',
@@ -114,6 +124,7 @@ class MenuData {
         'single': 129.0,
       },
       description: 'Crispy potato starter',
+      imagePath: 'images/aloo 65.jpg',
     ),
     MenuItem(
       id: 's_mushroom_65',
@@ -123,6 +134,7 @@ class MenuData {
         'single': 179.0,
       },
       description: 'Spicy mushroom 65',
+      imagePath: 'images/mushroom 65.jpg',
     ),
     MenuItem(
       id: 's_soyabean_65',
@@ -143,6 +155,7 @@ class MenuData {
         'single': 49.0,
       },
       description: 'Sweet gulab jamun',
+      imagePath: 'images/gulab jamun.jpg',
     ),
     MenuItem(
       id: 'e_extra_raita',

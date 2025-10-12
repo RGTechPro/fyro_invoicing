@@ -111,58 +111,58 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ? _screens[_selectedIndex] // No sidebar on mobile
           : Row(
               children: [
-          // Sidebar navigation
-          NavigationRail(
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            labelType: NavigationRailLabelType.all,
-            backgroundColor: AppTheme.primaryBlack,
-            selectedIconTheme: const IconThemeData(
-              color: AppTheme.secondaryGold,
-              size: 32,
-            ),
-            unselectedIconTheme: const IconThemeData(
-              color: AppTheme.mediumGrey,
-              size: 28,
-            ),
-            selectedLabelTextStyle: const TextStyle(
-              color: AppTheme.secondaryGold,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-            unselectedLabelTextStyle: const TextStyle(
-              color: AppTheme.mediumGrey,
-              fontSize: 12,
-            ),
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(Icons.restaurant_menu),
-                label: Text('Menu'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.shopping_cart),
-                label: Text('Orders'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.history),
-                label: Text('History'),
-              ),
-            ],
-          ),
+                // Sidebar navigation
+                NavigationRail(
+                  selectedIndex: _selectedIndex,
+                  onDestinationSelected: (index) {
+                    setState(() {
+                      _selectedIndex = index;
+                    });
+                  },
+                  labelType: NavigationRailLabelType.all,
+                  backgroundColor: AppTheme.primaryBlack,
+                  selectedIconTheme: const IconThemeData(
+                    color: AppTheme.secondaryGold,
+                    size: 32,
+                  ),
+                  unselectedIconTheme: const IconThemeData(
+                    color: AppTheme.mediumGrey,
+                    size: 28,
+                  ),
+                  selectedLabelTextStyle: const TextStyle(
+                    color: AppTheme.secondaryGold,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  unselectedLabelTextStyle: const TextStyle(
+                    color: AppTheme.mediumGrey,
+                    fontSize: 12,
+                  ),
+                  destinations: const [
+                    NavigationRailDestination(
+                      icon: Icon(Icons.restaurant_menu),
+                      label: Text('Menu'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.shopping_cart),
+                      label: Text('Orders'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.history),
+                      label: Text('History'),
+                    ),
+                  ],
+                ),
 
-          // Vertical divider
-          const VerticalDivider(thickness: 1, width: 1),
+                // Vertical divider
+                const VerticalDivider(thickness: 1, width: 1),
 
-          // Main content area
-          Expanded(
-            child: _screens[_selectedIndex],
-          ),
-        ],
-      ),
+                // Main content area
+                Expanded(
+                  child: _screens[_selectedIndex],
+                ),
+              ],
+            ),
       bottomNavigationBar: isSmallScreen
           ? BottomNavigationBar(
               currentIndex: _selectedIndex,

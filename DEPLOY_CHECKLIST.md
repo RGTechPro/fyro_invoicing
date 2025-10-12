@@ -3,18 +3,22 @@
 ## Pre-Deployment Setup
 
 ### 1. Initialize Git Repository
+
 ```bash
 git init
 git add .
 git commit -m "Initial commit: Biryani By Flame app"
 ```
+
 - [ ] Git initialized
 - [ ] All files committed
 
 ### 2. Create GitHub Repository
+
 Go to: https://github.com/new
 
 Settings:
+
 - Repository name: `fyro_invoicing` (or your choice)
 - Visibility: Public (required for free GitHub Pages)
 - **DO NOT** check:
@@ -27,11 +31,13 @@ Click "Create repository"
 - [ ] GitHub repository created
 
 ### 3. Connect Local to GitHub
+
 ```bash
 git remote add origin https://github.com/YOUR_USERNAME/fyro_invoicing.git
 git branch -M main
 git push -u origin main
 ```
+
 Replace `YOUR_USERNAME` with your actual GitHub username.
 
 - [ ] Remote origin added
@@ -69,11 +75,13 @@ Replace `YOUR_USERNAME` with your actual GitHub username.
 ### 6. Access Your Site
 
 Your site URL will be:
+
 ```
 https://YOUR_USERNAME.github.io/fyro_invoicing/
 ```
 
 Test the following:
+
 - [ ] Site loads without errors
 - [ ] Home screen appears correctly
 - [ ] Can navigate to Menu screen
@@ -99,6 +107,7 @@ Test the following:
 ### 8. Document Your URL
 
 Write down your site URL:
+
 ```
 https://_________________________.github.io/fyro_invoicing/
 ```
@@ -118,6 +127,7 @@ git push
 ```
 
 GitHub Actions will automatically:
+
 1. Build the updated app
 2. Deploy to GitHub Pages
 3. Update your live site (2-3 minutes)
@@ -133,12 +143,14 @@ If you have a custom domain (e.g., `orders.biryanibyflame.com`):
 ### 1. Update Workflow File
 
 Edit `.github/workflows/deploy.yml`:
+
 - Change `--base-href "/fyro_invoicing/"` to `--base-href "/"`
 - Change `cname: false` to `cname: orders.biryanibyflame.com`
 
 ### 2. Configure DNS
 
 In your domain provider's DNS settings:
+
 ```
 Type: CNAME
 Name: orders (or subdomain you want)
@@ -149,6 +161,7 @@ TTL: 3600
 ### 3. Enable in GitHub
 
 Settings → Pages → Custom domain:
+
 - Enter: `orders.biryanibyflame.com`
 - Check "Enforce HTTPS"
 - Wait for DNS check (can take up to 24 hours)
@@ -162,11 +175,13 @@ Settings → Pages → Custom domain:
 ### Common Issues
 
 **❌ Site shows 404 error**
+
 - Solution: Wait 2-3 minutes after first deployment
 - Check: Settings → Pages → Source is "GitHub Actions"
 - Check: Repository is Public
 
 **❌ Workflow fails in Actions tab**
+
 - Click on the failed workflow to see logs
 - Common fixes:
   - Update Flutter version in workflow file
@@ -174,11 +189,13 @@ Settings → Pages → Custom domain:
   - Try: `flutter build web --release` locally first
 
 **❌ Site loads but app doesn't work**
+
 - Check browser console (F12) for errors
 - Verify base-href in workflow matches repository name
 - Clear browser cache and hard refresh (Ctrl+Shift+R)
 
 **❌ Printing doesn't work**
+
 - Printing requires browser print dialog support
 - Test preview mode first
 - Some features may need HTTPS (GitHub Pages provides this)

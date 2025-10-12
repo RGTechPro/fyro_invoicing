@@ -161,7 +161,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
 
   Widget _buildOrderView(Order order) {
     final isMobile = MediaQuery.of(context).size.width < 600;
-    
+
     return Row(
       children: [
         // Order items list
@@ -457,7 +457,9 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
             FilledButton.icon(
               onPressed: () => _completeOrderWithCustomerCopy(order),
               icon: const Icon(Icons.print),
-              label: Text(isMobile ? 'Complete & Print' : 'Complete & Print Customer Copy'),
+              label: Text(isMobile
+                  ? 'Complete & Print'
+                  : 'Complete & Print Customer Copy'),
               style: FilledButton.styleFrom(
                 padding: EdgeInsets.all(isMobile ? 16 : 20),
               ),

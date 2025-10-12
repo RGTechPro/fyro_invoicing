@@ -39,6 +39,7 @@ git push -u origin main
 ### Step 5: Access Your Site
 
 Your site will be live at:
+
 ```
 https://YOUR_USERNAME.github.io/fyro_invoicing/
 ```
@@ -55,6 +56,7 @@ After creating your GitHub repository and connecting it:
 ```
 
 This script will:
+
 - ✅ Build your Flutter web app
 - ✅ Commit changes
 - ✅ Push to GitHub
@@ -79,17 +81,20 @@ GitHub Actions will automatically build and deploy! 🎉
 ## Troubleshooting
 
 **Issue: "Permission denied" on deploy.sh**
+
 ```bash
 chmod +x deploy.sh
 ./deploy.sh
 ```
 
 **Issue: Site shows 404**
+
 - Wait 2-3 minutes after first push
 - Check Settings → Pages → Source is "GitHub Actions"
 - Check Actions tab for build errors
 
 **Issue: Build fails in GitHub Actions**
+
 - Check the Actions tab for error details
 - Ensure pubspec.yaml dependencies are correct
 - Try building locally: `flutter build web --release`
@@ -112,6 +117,7 @@ https://YOUR_USERNAME.github.io/fyro_invoicing/
 ```
 
 **Example**: If your GitHub username is `john_doe`:
+
 ```
 https://john_doe.github.io/fyro_invoicing/
 ```

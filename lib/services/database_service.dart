@@ -37,7 +37,8 @@ class DatabaseService {
 
   // Get next order number
   static int getNextOrderNumber() {
-    final currentNumber = _counterBox?.get('lastOrderNumber', defaultValue: 0) as int;
+    final currentNumber =
+        _counterBox?.get('lastOrderNumber', defaultValue: 0) as int;
     final nextNumber = currentNumber + 1;
     _counterBox?.put('lastOrderNumber', nextNumber);
     return nextNumber;

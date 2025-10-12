@@ -20,9 +20,9 @@ class MenuOrdersScreen extends ConsumerWidget {
 
     return Row(
       children: [
-        // Left side: Menu (60% width)
+        // Left side: Menu (45% width)
         Expanded(
-          flex: 6,
+          flex: 45,
           child: Container(
             decoration: BoxDecoration(
               border: Border(
@@ -36,9 +36,9 @@ class MenuOrdersScreen extends ConsumerWidget {
           ),
         ),
 
-        // Right side: Orders (40% width)
+        // Right side: Orders (55% width)
         Expanded(
-          flex: 4,
+          flex: 55,
           child: Container(
             color: Colors.grey[50],
             child: const OrdersScreen(),

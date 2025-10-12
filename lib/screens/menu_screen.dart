@@ -84,272 +84,147 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
     }
 
     final screenWidth = MediaQuery.of(context).size.width;
-    final crossAxisCount = screenWidth < 600 ? 1 : (screenWidth < 1024 ? 2 : 3);
-    final childAspectRatio = screenWidth < 600 ? 2.5 : 0.85;
 
-    return GridView.builder(
+    return ListView.builder(
       padding: EdgeInsets.all(screenWidth < 600 ? 8 : 16),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        childAspectRatio: childAspectRatio,
-        crossAxisSpacing: screenWidth < 600 ? 8 : 16,
-        mainAxisSpacing: screenWidth < 600 ? 8 : 16,
-      ),
       itemCount: items.length,
       itemBuilder: (context, index) {
-        return _buildMenuItemCard(items[index]);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: _buildMenuItemCard(items[index]),
+        );
       },
     );
   }
 
   Widget _buildMenuItemCard(MenuItem item) {
-    final isMobile = MediaQuery.of(context).size.width < 600;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
     final isVeg = item.category == MenuCategory.veg;
     final firstPrice = item.prices.values.first;
 
     return Card(
-      elevation: 3,
+      elevation: 2,
       child: InkWell(
         onTap: () => _showAddToOrderDialog(item),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         child: Padding(
-          padding: EdgeInsets.all(isMobile ? 8 : 12),
-          child: isMobile
-              ? Row(
-                  // Horizontal layout for mobile
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            // Always use horizontal layout now (list view)
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: item.imagePath != null
+                    ? Image.asset(
+                        item.imagePath!,
+                        width: isMobile ? 60 : 70,
+                        height: isMobile ? 60 : 70,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: isMobile ? 60 : 70,
+                            height: isMobile ? 60 : 70,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isVeg
+                                  ? Colors.green.withOpacity(0.1)
+                                  : AppTheme.accentRed.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              isVeg ? Icons.eco : Icons.local_fire_department,
+                              color: isVeg ? Colors.green : AppTheme.accentRed,
+                              size: 20,
+                            ),
+                          );
+                        },
+                      )
+                    : Container(
+                        width: isMobile ? 60 : 70,
+                        height: isMobile ? 60 : 70,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isVeg
+                              ? Colors.green.withOpacity(0.1)
+                              : AppTheme.accentRed.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          isVeg ? Icons.eco : Icons.local_fire_department,
+                          color: isVeg ? Colors.green : AppTheme.accentRed,
+                          size: 20,
+                        ),
+                      ),
+              ),
+              const SizedBox(width: 12),
+              // Content
+              Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Image
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: item.imagePath != null
-                          ? Image.asset(
-                              item.imagePath!,
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  width: 80,
-                                  height: 80,
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: isVeg
-                                        ? Colors.green.withOpacity(0.1)
-                                        : AppTheme.accentRed.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Icon(
-                                    isVeg
-                                        ? Icons.eco
-                                        : Icons.local_fire_department,
-                                    color: isVeg ? Colors.green : AppTheme.accentRed,
-                                    size: 24,
-                                  ),
-                                );
-                              },
-                            )
-                          : Container(
-                              width: 80,
-                              height: 80,
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: isVeg
-                                    ? Colors.green.withOpacity(0.1)
-                                    : AppTheme.accentRed.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                isVeg ? Icons.eco : Icons.local_fire_department,
-                                color: isVeg ? Colors.green : AppTheme.accentRed,
-                                size: 24,
-                              ),
-                            ),
-                    ),
-                    const SizedBox(width: 12),
-                    // Content
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            item.name,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          if (item.description.isNotEmpty) ...[
-                            Text(
-                              item.description,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                          ],
-                          Text(
-                            '₹${firstPrice.toStringAsFixed(0)}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.secondaryGold,
-                            ),
-                          ),
-                        ],
+                    Text(
+                      item.name,
+                      style: TextStyle(
+                        fontSize: isMobile ? 14 : 15,
+                        fontWeight: FontWeight.bold,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    // Add button
-                    IconButton(
-                      onPressed: () => _showAddToOrderDialog(item),
-                      icon: const Icon(Icons.add_circle),
-                      color: AppTheme.secondaryGold,
-                      iconSize: 32,
-                    ),
-                  ],
-                )
-              : Column(
-                  // Vertical layout for desktop/tablet
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Image
-                    if (item.imagePath != null)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(
-                          item.imagePath!,
-                          width: double.infinity,
-                          height: 120,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              width: double.infinity,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                color: _getCategoryColor(item.category)
-                                    .withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.restaurant,
-                                size: 40,
-                                color: _getCategoryColor(item.category),
-                              ),
-                            );
-                          },
+                    if (item.description.isNotEmpty && !isMobile) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        item.description,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey[600],
                         ),
-                      ),
-
-                    const SizedBox(height: 8),
-
-                    // Category badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: _getCategoryColor(item.category),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        item.getCategoryName(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    // Item name
-                    Expanded(
-                      child: Text(
-                        item.name,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          height: 1.2,
-                        ),
-                        maxLines: 3,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    // Prices
-                    if (item.prices.length == 1) ...[
-                      Text(
-                        '₹${item.prices.values.first.toStringAsFixed(0)}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.accentRed,
-                        ),
-                      ),
-                    ] else ...[
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Text(
-                                'Serves 1: ',
-                                style: TextStyle(fontSize: 11),
-                              ),
-                              Text(
-                                '₹${item.getPrice('serves1').toStringAsFixed(0)}',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.accentRed,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              const Text(
-                                'Serves 2: ',
-                                style: TextStyle(fontSize: 11),
-                              ),
-                              Text(
-                                '₹${item.getPrice('serves2').toStringAsFixed(0)}',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.accentRed,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
                     ],
-
-                    const SizedBox(height: 8),
-
-                    // Add button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () => _showAddToOrderDialog(item),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                        ),
-                        child: const Text('Add to Order'),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Price and Add button
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '₹${firstPrice.toStringAsFixed(0)}',
+                    style: TextStyle(
+                      fontSize: isMobile ? 16 : 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.secondaryGold,
+                    ),
+                  ),
+                  if (item.prices.length > 1 && !isMobile) ...[
+                    Text(
+                      '+ more sizes',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey[600],
                       ),
                     ),
                   ],
-                ),
+                ],
+              ),
+              const SizedBox(width: 4),
+              // Add button
+              IconButton(
+                onPressed: () => _showAddToOrderDialog(item),
+                icon: const Icon(Icons.add_circle),
+                color: AppTheme.secondaryGold,
+                iconSize: isMobile ? 28 : 32,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -410,19 +285,6 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
         return '🍽️ Starters';
       case MenuCategory.extras:
         return '➕ Extras';
-    }
-  }
-
-  Color _getCategoryColor(MenuCategory category) {
-    switch (category) {
-      case MenuCategory.nonVeg:
-        return AppTheme.accentRed;
-      case MenuCategory.veg:
-        return Colors.green;
-      case MenuCategory.starters:
-        return Colors.orange;
-      case MenuCategory.extras:
-        return Colors.blue;
     }
   }
 }

@@ -5,6 +5,7 @@ import '../theme/app_theme.dart';
 import 'menu_screen.dart';
 import 'orders_screen.dart';
 import 'history_screen.dart';
+import 'menu_orders_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -16,11 +17,55 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = const [
-    MenuScreen(),
-    OrdersScreen(),
-    HistoryScreen(),
-  ];
+  List<Widget> _getScreens(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final useDesktopLayout = screenWidth >= 900;
+
+    if (useDesktopLayout) {
+      // Desktop: Merge menu and orders into one screen
+      return const [
+        MenuOrdersScreen(), // Combined menu + orders view
+        HistoryScreen(),
+      ];
+    } else {
+      // Mobile/Tablet: Keep separate screens
+      return const [
+        MenuScreen(),
+        OrdersScreen(),
+        HistoryScreen(),
+      ];
+    }
+  }
+
+  List<NavigationRailDestination> _getDesktopNavItems() {
+    return const [
+      NavigationRailDestination(
+        icon: Icon(Icons.point_of_sale),
+        label: Text('POS'),
+      ),
+      NavigationRailDestination(
+        icon: Icon(Icons.history),
+        label: Text('History'),
+      ),
+    ];
+  }
+
+  List<BottomNavigationBarItem> _getMobileNavItems() {
+    return const [
+      BottomNavigationBarItem(
+        icon: Icon(Icons.restaurant_menu),
+        label: 'Menu',
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.shopping_cart),
+        label: 'Orders',
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.history),
+        label: 'History',
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +73,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final todaysSales = ref.watch(todaysSalesProvider);
     final todaysOrderCount = ref.watch(todaysOrderCountProvider);
     final isSmallScreen = MediaQuery.of(context).size.width < 600;
+    final useDesktopLayout = MediaQuery.of(context).size.width >= 900;
+    final screens = _getScreens(context);
+
+    // Adjust selected index for desktop layout
+    // Desktop has 2 screens (POS, History), mobile has 3 (Menu, Orders, History)
+    final maxIndex = useDesktopLayout ? 1 : 2;
+    if (_selectedIndex > maxIndex) {
+      _selectedIndex = maxIndex;
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -108,7 +162,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
       body: isSmallScreen
-          ? _screens[_selectedIndex] // No sidebar on mobile
+          ? screens[_selectedIndex] // No sidebar on mobile
           : Row(
               children: [
                 // Sidebar navigation
@@ -138,20 +192,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     color: AppTheme.mediumGrey,
                     fontSize: 12,
                   ),
-                  destinations: const [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.restaurant_menu),
-                      label: Text('Menu'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.shopping_cart),
-                      label: Text('Orders'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.history),
-                      label: Text('History'),
-                    ),
-                  ],
+                  destinations: useDesktopLayout
+                      ? _getDesktopNavItems()
+                      : const [
+                          NavigationRailDestination(
+                            icon: Icon(Icons.restaurant_menu),
+                            label: Text('Menu'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.shopping_cart),
+                            label: Text('Orders'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.history),
+                            label: Text('History'),
+                          ),
+                        ],
                 ),
 
                 // Vertical divider
@@ -159,7 +215,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                 // Main content area
                 Expanded(
-                  child: _screens[_selectedIndex],
+                  child: screens[_selectedIndex],
                 ),
               ],
             ),
@@ -175,23 +231,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               selectedItemColor: AppTheme.secondaryGold,
               unselectedItemColor: AppTheme.mediumGrey,
               type: BottomNavigationBarType.fixed,
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.restaurant_menu),
-                  label: 'Menu',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.shopping_cart),
-                  label: 'Orders',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.history),
-                  label: 'History',
-                ),
-              ],
+              items: _getMobileNavItems(),
             )
           : null,
-      floatingActionButton: _selectedIndex == 0
+      floatingActionButton: _selectedIndex == 0 && !useDesktopLayout
           ? FloatingActionButton.extended(
               onPressed: () {
                 // Create new order and switch to orders screen

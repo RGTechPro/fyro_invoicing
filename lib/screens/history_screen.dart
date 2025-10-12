@@ -77,7 +77,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.secondaryGold,
                   foregroundColor: AppTheme.primaryBlack,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
 
@@ -662,7 +663,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   void _exportOrders(ExportPeriod period) async {
     final allOrders = ref.read(orderHistoryProvider);
-    
+
     // Filter orders based on period
     final now = DateTime.now();
     List<Order> ordersToExport = [];
@@ -788,7 +789,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Exported ${ordersToExport.length} orders to Excel'),
+              content:
+                  Text('Exported ${ordersToExport.length} orders to Excel'),
               backgroundColor: Colors.green,
             ),
           );

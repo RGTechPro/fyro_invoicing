@@ -5,107 +5,97 @@ class MenuData {
     // Non-Veg Items
     MenuItem(
       id: 'nv_hyderabadi_chicken',
-      name: 'Hyderabadi Chicken Dum Biryani with raita',
+      name: 'Hyderabadi Chicken Dum Biryani',
       category: MenuCategory.nonVeg,
       prices: {
-        'serves1': 249.0,
-        'serves2': 448.0,
+        'serves1': 299.0,
+        'serves2': 498.0,
       },
       description:
           'Aromatic Hyderabadi style chicken dum biryani served with cooling raita',
       imagePath: 'images/Hyderbadi chicken dum biryani.jpg',
     ),
     MenuItem(
-      id: 'nv_kolkata_chicken',
-      name: 'Kolkata Chicken Dum Biryani with raita',
+      id: 'nv_boneless_hyderabadi',
+      name: 'Hyderabadi Chicken Dum Biryani (Boneless)',
       category: MenuCategory.nonVeg,
       prices: {
-        'serves1': 259.0,
-        'serves2': 458.0,
+        'serves1': 315.0,
+        'serves2': 515.0,
+      },
+      description: 'Boneless chicken Hyderabadi dum biryani with raita',
+      imagePath: 'images/Boneless Hyderabadi chicken dum biryani.jpg',
+    ),
+    MenuItem(
+      id: 'nv_kolkata_chicken',
+      name: 'Kolkata Chicken Dum Biryani',
+      category: MenuCategory.nonVeg,
+      prices: {
+        'serves1': 329.0,
+        'serves2': 528.0,
       },
       description: 'Traditional Kolkata style chicken dum biryani with raita',
       imagePath: 'images/Kolkata chicken dum biryani.jpg',
     ),
     MenuItem(
       id: 'nv_chicken_65_biryani',
-      name: 'Chicken 65 Biryani with raita',
+      name: 'Chicken 65 Biryani',
       category: MenuCategory.nonVeg,
       prices: {
-        'serves1': 249.0,
-        'serves2': 448.0,
+        'serves1': 305.0,
+        'serves2': 505.0,
       },
       description: 'Spicy chicken 65 biryani served with raita',
       imagePath: 'images/chicken 65 biryani.jpg',
     ),
-    MenuItem(
-      id: 'nv_boneless_hyderabadi',
-      name: 'Boneless Hyderabadi Chicken Dum Biryani with raita',
-      category: MenuCategory.nonVeg,
-      prices: {
-        'serves1': 249.0,
-        'serves2': 448.0,
-      },
-      description: 'Boneless chicken Hyderabadi dum biryani with raita',
-      imagePath: 'images/Boneless Hyderabadi chicken dum biryani.jpg',
-    ),
 
     // Veg Items
     MenuItem(
-      id: 'v_paneer_65_biryani',
-      name: 'Paneer 65 Biryani with raita',
-      category: MenuCategory.veg,
-      prices: {
-        'serves1': 249.0,
-        'serves2': 448.0,
-      },
-      description: 'Delicious paneer 65 biryani with raita',
-      imagePath: 'images/paneer 65 biryani.jpg',
-    ),
-    MenuItem(
       id: 'v_hyderabadi_paneer',
-      name: 'Hyderabadi Paneer Dum Biryani with raita',
+      name: 'Hyderabadi Paneer Dum Biryani',
       category: MenuCategory.veg,
       prices: {
-        'serves1': 249.0,
-        'serves2': 448.0,
+        'serves1': 299.0,
+        'serves2': 498.0,
       },
       description: 'Hyderabadi style paneer dum biryani with raita',
       imagePath: 'images/Hyderbadi paneer dum biryani.jpg',
     ),
     MenuItem(
-      id: 'v_mushroom_65_biryani',
-      name: 'Mushroom 65 Biryani with raita',
+      id: 'v_paneer_65_biryani',
+      name: 'Paneer 65 Biryani',
       category: MenuCategory.veg,
       prices: {
-        'serves1': 239.0,
-        'serves2': 438.0,
+        'serves1': 305.0,
+        'serves2': 505.0,
+      },
+      description: 'Delicious paneer 65 biryani with raita',
+      imagePath: 'images/paneer 65 biryani.jpg',
+    ),
+    MenuItem(
+      id: 'v_mushroom_65_biryani',
+      name: 'Mushroom 65 Biryani',
+      category: MenuCategory.veg,
+      prices: {
+        'serves1': 289.0,
+        'serves2': 488.0,
       },
       description: 'Tasty mushroom 65 biryani with raita',
       imagePath: 'images/mushroom 65 biryani.jpg',
     ),
     MenuItem(
       id: 'v_aloo_65_biryani',
-      name: 'Aloo 65 Biryani with raita',
+      name: 'Aloo 65 Biryani',
       category: MenuCategory.veg,
       prices: {
-        'serves1': 209.0,
-        'serves2': 408.0,
+        'serves1': 259.0,
+        'serves2': 458.0,
       },
       description: 'Flavorful aloo 65 biryani with raita',
       imagePath: 'images/aloo 65 biryani.jpg',
     ),
 
     // Starters
-    MenuItem(
-      id: 's_paneer_65',
-      name: 'Paneer 65',
-      category: MenuCategory.starters,
-      prices: {
-        'single': 179.0,
-      },
-      description: 'Crispy and spicy paneer 65',
-      imagePath: 'images/paneer 65.jpg',
-    ),
     MenuItem(
       id: 's_chicken_65',
       name: 'Chicken 65',
@@ -115,6 +105,16 @@ class MenuData {
       },
       description: 'Classic spicy chicken 65',
       imagePath: 'images/chicken 65.jpg',
+    ),
+    MenuItem(
+      id: 's_paneer_65',
+      name: 'Paneer 65',
+      category: MenuCategory.starters,
+      prices: {
+        'single': 189.0,
+      },
+      description: 'Crispy and spicy paneer 65',
+      imagePath: 'images/paneer 65.jpg',
     ),
     MenuItem(
       id: 's_aloo_65',
@@ -137,13 +137,13 @@ class MenuData {
       imagePath: 'images/mushroom 65.jpg',
     ),
     MenuItem(
-      id: 's_soyabean_65',
-      name: 'Soyabean 65',
+      id: 's_soya_65',
+      name: 'Soya 65',
       category: MenuCategory.starters,
       prices: {
         'single': 169.0,
       },
-      description: 'Healthy and tasty soyabean 65',
+      description: 'Healthy and tasty soya 65',
     ),
 
     // Extras
@@ -159,12 +159,21 @@ class MenuData {
     ),
     MenuItem(
       id: 'e_extra_raita',
-      name: 'Extra Raita',
+      name: 'Raita',
       category: MenuCategory.extras,
       prices: {
         'single': 25.0,
       },
       description: 'Additional raita portion',
+    ),
+    MenuItem(
+      id: 'e_green_chutney',
+      name: 'Chutney',
+      category: MenuCategory.extras,
+      prices: {
+        'single': 25.0,
+      },
+      description: 'Fresh green chutney',
     ),
     MenuItem(
       id: 'e_onion',

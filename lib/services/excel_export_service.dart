@@ -21,7 +21,7 @@ class ExcelExportService {
     }
 
     final excel = Excel.createExcel();
-    
+
     // Remove default sheet
     excel.delete('Sheet1');
 
@@ -69,12 +69,12 @@ class ExcelExportService {
     final totalOrders = orders.length;
     final completedOrders =
         orders.where((o) => o.status == OrderStatus.completed).length;
-    final totalRevenue = orders.fold<double>(0, (sum, o) => sum + o.totalAmount);
+    final totalRevenue =
+        orders.fold<double>(0, (sum, o) => sum + o.totalAmount);
     final totalBaseRevenue =
         orders.fold<double>(0, (sum, o) => sum + o.totalBaseAmount);
     final totalGST = orders.fold<double>(0, (sum, o) => sum + o.totalGst);
-    final totalItems =
-        orders.fold<int>(0, (sum, o) => sum + o.totalItems);
+    final totalItems = orders.fold<int>(0, (sum, o) => sum + o.totalItems);
     final avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
     _setCellValue(sheet, 'A$row', 'KEY METRICS');
@@ -239,10 +239,14 @@ class ExcelExportService {
     row++;
     _setCellValue(sheet, 'A$row', 'TOTAL');
     _styleBold(sheet, 'A$row');
-    final totalQty = sortedItems.fold<int>(0, (sum, item) => sum + item['quantity'] as int);
-    final totalRev = sortedItems.fold<double>(0, (sum, item) => sum + item['totalRevenue']);
-    final totalBase = sortedItems.fold<double>(0, (sum, item) => sum + item['baseRevenue']);
-    final totalGst = sortedItems.fold<double>(0, (sum, item) => sum + item['gst']);
+    final totalQty =
+        sortedItems.fold<int>(0, (sum, item) => sum + item['quantity'] as int);
+    final totalRev =
+        sortedItems.fold<double>(0, (sum, item) => sum + item['totalRevenue']);
+    final totalBase =
+        sortedItems.fold<double>(0, (sum, item) => sum + item['baseRevenue']);
+    final totalGst =
+        sortedItems.fold<double>(0, (sum, item) => sum + item['gst']);
 
     _setCellValue(sheet, 'C$row', totalQty);
     _setCellValue(sheet, 'E$row', '₹${totalRev.toStringAsFixed(2)}');
@@ -309,9 +313,12 @@ class ExcelExportService {
     row++;
     _setCellValue(sheet, 'A$row', 'TOTAL');
     _styleBold(sheet, 'A$row');
-    final totalQty = categorySales.values.fold<int>(0, (sum, cat) => sum + cat['quantity'] as int);
-    final totalBase = categorySales.values.fold<double>(0, (sum, cat) => sum + cat['base']);
-    final totalGst = categorySales.values.fold<double>(0, (sum, cat) => sum + cat['gst']);
+    final totalQty = categorySales.values
+        .fold<int>(0, (sum, cat) => sum + cat['quantity'] as int);
+    final totalBase =
+        categorySales.values.fold<double>(0, (sum, cat) => sum + cat['base']);
+    final totalGst =
+        categorySales.values.fold<double>(0, (sum, cat) => sum + cat['gst']);
 
     _setCellValue(sheet, 'B$row', totalQty);
     _setCellValue(sheet, 'C$row', '₹${totalRevenue.toStringAsFixed(2)}');
@@ -379,12 +386,17 @@ class ExcelExportService {
       row++;
       _setCellValue(sheet, 'A$row', 'TOTAL');
       _styleBold(sheet, 'A$row');
-      
-      final totalOrders = dailySales.values.fold<int>(0, (sum, day) => sum + day['orders'] as int);
-      final totalItems = dailySales.values.fold<int>(0, (sum, day) => sum + day['items'] as int);
-      final totalRev = dailySales.values.fold<double>(0, (sum, day) => sum + day['revenue']);
-      final totalBase = dailySales.values.fold<double>(0, (sum, day) => sum + day['base']);
-      final totalGst = dailySales.values.fold<double>(0, (sum, day) => sum + day['gst']);
+
+      final totalOrders = dailySales.values
+          .fold<int>(0, (sum, day) => sum + day['orders'] as int);
+      final totalItems = dailySales.values
+          .fold<int>(0, (sum, day) => sum + day['items'] as int);
+      final totalRev =
+          dailySales.values.fold<double>(0, (sum, day) => sum + day['revenue']);
+      final totalBase =
+          dailySales.values.fold<double>(0, (sum, day) => sum + day['base']);
+      final totalGst =
+          dailySales.values.fold<double>(0, (sum, day) => sum + day['gst']);
 
       _setCellValue(sheet, 'B$row', totalOrders);
       _setCellValue(sheet, 'C$row', totalItems);
@@ -395,7 +407,8 @@ class ExcelExportService {
   }
 
   // Helper methods
-  static Map<String, Map<String, dynamic>> _calculateItemSales(List<Order> orders) {
+  static Map<String, Map<String, dynamic>> _calculateItemSales(
+      List<Order> orders) {
     final itemSales = <String, Map<String, dynamic>>{};
 
     for (final order in orders) {
@@ -470,11 +483,13 @@ class ExcelExportService {
   }
 
   static void _setCellValue(Sheet sheet, String cell, dynamic value) {
-    sheet.cell(CellIndex.indexByString(cell)).value = 
-        value is String ? TextCellValue(value) : 
-        value is int ? IntCellValue(value) : 
-        value is double ? DoubleCellValue(value) : 
-        TextCellValue(value.toString());
+    sheet.cell(CellIndex.indexByString(cell)).value = value is String
+        ? TextCellValue(value)
+        : value is int
+            ? IntCellValue(value)
+            : value is double
+                ? DoubleCellValue(value)
+                : TextCellValue(value.toString());
   }
 
   static void _styleBold(Sheet sheet, String cell) {

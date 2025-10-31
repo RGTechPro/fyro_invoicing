@@ -2,12 +2,15 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models/order.dart';
 import '../models/order_item.dart';
 import '../models/menu_item.dart';
+import '../models/challan.dart';
 
 class DatabaseService {
   static const String _ordersBoxName = 'orders';
   static const String _counterBoxName = 'counters';
+  static const String _challansBoxName = 'challans';
   static Box<Order>? _ordersBox;
   static Box? _counterBox;
+  static Box<Challan>? _challansBox;
 
   // Initialize Hive
   static Future<void> init() async {
@@ -29,10 +32,17 @@ class DatabaseService {
     if (!Hive.isAdapterRegistered(4)) {
       Hive.registerAdapter(MenuCategoryAdapter());
     }
+    if (!Hive.isAdapterRegistered(5)) {
+      Hive.registerAdapter(ChallanAdapter());
+    }
+    if (!Hive.isAdapterRegistered(6)) {
+      Hive.registerAdapter(ChallanItemAdapter());
+    }
 
     // Open boxes
     _ordersBox = await Hive.openBox<Order>(_ordersBoxName);
     _counterBox = await Hive.openBox(_counterBoxName);
+    _challansBox = await Hive.openBox<Challan>(_challansBoxName);
   }
 
   // Get next order number
@@ -133,6 +143,44 @@ class DatabaseService {
   // Close database
   static Future<void> close() async {
     await _ordersBox?.close();
+  }
+
+  // ============ CHALLAN METHODS ============
+
+  // Get next challan number
+  static String getNextChallanNumber() {
+    final currentNumber =
+        _counterBox?.get('lastChallanNumber', defaultValue: 0) as int;
+    final nextNumber = currentNumber + 1;
+    _counterBox?.put('lastChallanNumber', nextNumber);
+    return 'CH${DateTime.now().year}${nextNumber.toString().padLeft(4, '0')}';
+  }
+
+  // Save a challan
+  static Future<void> saveChallan(Challan challan) async {
+    await _challansBox?.put(challan.id, challan);
+  }
+
+  // Get challan by ID
+  static Challan? getChallan(String id) {
+    return _challansBox?.get(id);
+  }
+
+  // Get all challans
+  static List<Challan> getAllChallans() {
+    return _challansBox?.values.toList() ?? [];
+  }
+
+  // Get recent challans
+  static List<Challan> getRecentChallans({int limit = 50}) {
+    final allChallans = getAllChallans();
+    allChallans.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return allChallans.take(limit).toList();
+  }
+
+  // Delete challan
+  static Future<void> deleteChallan(String id) async {
+    await _challansBox?.delete(id);
   }
 }
 
@@ -274,4 +322,76 @@ class OrderAdapter extends TypeAdapter<Order> {
       other is OrderAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
+}
+
+// Adapter for Challan
+class ChallanAdapter extends TypeAdapter<Challan> {
+  @override
+  final int typeId = 5;
+
+  @override
+  Challan read(BinaryReader reader) {
+    final numFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numFields; i++) reader.readByte(): reader.read(),
+    };
+
+    return Challan(
+      id: fields[0] as String,
+      challanNumber: fields[1] as String,
+      date: fields[2] as DateTime,
+      fromCompany: fields[3] as String,
+      toCompany: fields[4] as String,
+      deliveryAddress: fields[5] as String,
+      items: (fields[6] as List).cast<ChallanItem>(),
+      remarks: fields[7] as String?,
+      createdAt: fields[8] as DateTime,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, Challan obj) {
+    writer
+      ..writeByte(9)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.challanNumber)
+      ..writeByte(2)
+      ..write(obj.date)
+      ..writeByte(3)
+      ..write(obj.fromCompany)
+      ..writeByte(4)
+      ..write(obj.toCompany)
+      ..writeByte(5)
+      ..write(obj.deliveryAddress)
+      ..writeByte(6)
+      ..write(obj.items)
+      ..writeByte(7)
+      ..write(obj.remarks)
+      ..writeByte(8)
+      ..write(obj.createdAt);
+  }
+}
+
+// Adapter for ChallanItem
+class ChallanItemAdapter extends TypeAdapter<ChallanItem> {
+  @override
+  final int typeId = 6;
+
+  @override
+  ChallanItem read(BinaryReader reader) {
+    return ChallanItem(
+      description: reader.readString(),
+      quantity: reader.readInt(),
+      unit: reader.readString(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, ChallanItem obj) {
+    writer.writeString(obj.description);
+    writer.writeInt(obj.quantity);
+    writer.writeString(obj.unit);
+  }
 }

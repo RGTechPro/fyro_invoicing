@@ -226,132 +226,104 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
           margin: const EdgeInsets.only(bottom: 12),
           child: Padding(
             padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                // Top row: Item name and price
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Item name (truncated if too long)
-                    Expanded(
-                      child: Text(
+                // Item details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
                         item.menuItemName,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item.getServingSizeDisplay(),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppTheme.darkGrey,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '₹${item.pricePerItem.toStringAsFixed(2)} each',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.mediumGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Quantity controls
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove_circle_outline),
+                      onPressed: () {
+                        ref.read(ordersProvider.notifier).updateItemQuantity(
+                              order.orderId,
+                              index,
+                              item.quantity - 1,
+                            );
+                      },
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        border:
+                            Border.all(color: AppTheme.secondaryGold, width: 2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '${item.quantity}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    // Total price
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline),
+                      onPressed: () {
+                        ref.read(ordersProvider.notifier).updateItemQuantity(
+                              order.orderId,
+                              index,
+                              item.quantity + 1,
+                            );
+                      },
+                    ),
+                  ],
+                ),
+
+                const SizedBox(width: 16),
+
+                // Total price
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
                     Text(
-                      '₹${item.totalPrice.toStringAsFixed(0)}',
+                      '₹${item.totalPrice.toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.accentRed,
                       ),
                     ),
-                  ],
-                ),
-                
-                const SizedBox(height: 8),
-                
-                // Bottom row: Serving size, unit price, and controls
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Left: Serving size and unit price
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Text(
-                            item.getServingSizeDisplay(),
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppTheme.darkGrey,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '₹${item.pricePerItem.toStringAsFixed(0)} each',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.mediumGrey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Right: Quantity controls and delete
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle_outline, size: 24),
-                          onPressed: () {
-                            ref.read(ordersProvider.notifier).updateItemQuantity(
-                                  order.orderId,
-                                  index,
-                                  item.quantity - 1,
-                                );
-                          },
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(
-                            minWidth: 36,
-                            minHeight: 36,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 4),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                                color: AppTheme.secondaryGold, width: 2),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            '${item.quantity}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle_outline, size: 24),
-                          onPressed: () {
-                            ref.read(ordersProvider.notifier).updateItemQuantity(
-                                  order.orderId,
-                                  index,
-                                  item.quantity + 1,
-                                );
-                          },
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(
-                            minWidth: 36,
-                            minHeight: 36,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline,
-                              color: Colors.red, size: 22),
-                          onPressed: () {
-                            ref
-                                .read(ordersProvider.notifier)
-                                .removeItem(order.orderId, index);
-                          },
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(
-                            minWidth: 36,
-                            minHeight: 36,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 4),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: () {
+                        ref
+                            .read(ordersProvider.notifier)
+                            .removeItem(order.orderId, index);
+                      },
                     ),
                   ],
                 ),
@@ -390,6 +362,8 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
 
           // Customer name (optional)
           TextField(
+            cursorColor: AppTheme.secondaryGold,
+            style: const TextStyle(fontSize: 16),
             decoration: const InputDecoration(
               labelText: 'Customer Name (Optional)',
               prefixIcon: Icon(Icons.person),
@@ -406,6 +380,8 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
 
           // Notes
           TextField(
+            cursorColor: AppTheme.secondaryGold,
+            style: const TextStyle(fontSize: 16),
             decoration: const InputDecoration(
               labelText: 'Notes (Optional)',
               prefixIcon: Icon(Icons.note),

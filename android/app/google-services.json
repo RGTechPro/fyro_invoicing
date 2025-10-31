@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "807383020417",
+    "project_id": "biryani-by-flame-433bf",
+    "storage_bucket": "biryani-by-flame-433bf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:807383020417:android:8eca69fbfecc18a41aee80",
+        "android_client_info": {
+          "package_name": "com.example.fyro_invoicing"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVPR6TIDIyb_zJdezvyvi1i1LxiowZ_oM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

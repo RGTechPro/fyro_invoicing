@@ -6,6 +6,7 @@ import 'menu_screen.dart';
 import 'orders_screen.dart';
 import 'history_screen.dart';
 import 'menu_orders_screen.dart';
+import 'challans_list_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -97,6 +98,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
         actions: [
+          // Challan button
+          IconButton(
+            icon: const Icon(Icons.description),
+            tooltip: 'Delivery Challans',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ChallansListScreen(),
+                ),
+              );
+            },
+          ),
           // Today's stats - hide on very small screens
           if (!isSmallScreen || MediaQuery.of(context).size.width >= 400)
             Container(

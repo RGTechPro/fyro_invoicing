@@ -44,6 +44,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               Expanded(
                 child: TextField(
                   controller: _searchController,
+                  cursorColor: AppTheme.secondaryGold,
+                  style: const TextStyle(fontSize: 16),
                   decoration: InputDecoration(
                     hintText: 'Search by order ID or customer name...',
                     prefixIcon: const Icon(Icons.search),

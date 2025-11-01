@@ -1571,18 +1571,34 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                       color: Colors.white,
                     ),
                   ),
-                  ElevatedButton.icon(
-                    onPressed: () => _showGenericExportDialog(
-                      'Export Wastage Report',
-                      (start, end) => ExcelExportService.exportWastageReport(
-                          start, end, _firestoreService),
-                    ),
-                    icon: const Icon(Icons.download),
-                    label: const Text('Export'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.secondaryGold,
-                      foregroundColor: Colors.black,
-                    ),
+                  Row(
+                    children: [
+                      // Add Wastage button
+                      ElevatedButton.icon(
+                        onPressed: _showAddWastageDialog,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      
+                      // Export button
+                      ElevatedButton.icon(
+                        onPressed: () => _showGenericExportDialog(
+                          'Export Wastage Report',
+                          (start, end) => ExcelExportService.exportWastageReport(
+                              start, end, _firestoreService),
+                        ),
+                        icon: const Icon(Icons.download),
+                        label: const Text('Export'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.secondaryGold,
+                          foregroundColor: Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -1947,18 +1963,34 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                       color: Colors.white,
                     ),
                   ),
-                  ElevatedButton.icon(
-                    onPressed: () => _showGenericExportDialog(
-                      'Export Expenses Report',
-                      (start, end) => ExcelExportService.exportExpensesReport(
-                          start, end, _firestoreService),
-                    ),
-                    icon: const Icon(Icons.download),
-                    label: const Text('Export'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.secondaryGold,
-                      foregroundColor: Colors.black,
-                    ),
+                  Row(
+                    children: [
+                      // Add Expense button
+                      ElevatedButton.icon(
+                        onPressed: _showAddExpenseDialog,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      
+                      // Export button
+                      ElevatedButton.icon(
+                        onPressed: () => _showGenericExportDialog(
+                          'Export Expenses Report',
+                          (start, end) => ExcelExportService.exportExpensesReport(
+                              start, end, _firestoreService),
+                        ),
+                        icon: const Icon(Icons.download),
+                        label: const Text('Export'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.secondaryGold,
+                          foregroundColor: Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

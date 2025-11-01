@@ -178,6 +178,37 @@ class FirestoreService {
     return updatedAttendance;
   }
 
+  // Admin: Add manual attendance record
+  Future<void> addManualAttendance({
+    required String employeeId,
+    required DateTime date,
+    required DateTime checkInTime,
+    DateTime? checkOutTime,
+  }) async {
+    final attendanceId = _uuid.v4();
+
+    // Calculate total hours if check-out time is provided
+    double? totalHours;
+    if (checkOutTime != null) {
+      totalHours = checkOutTime.difference(checkInTime).inMinutes / 60;
+    }
+
+    final attendance = Attendance(
+      id: attendanceId,
+      employeeId: employeeId,
+      date: DateTime(date.year, date.month, date.day),
+      checkInTime: checkInTime,
+      checkOutTime: checkOutTime,
+      totalHours: totalHours ?? 0,
+      status: 'present',
+    );
+
+    await _firestore
+        .collection('attendance')
+        .doc(attendanceId)
+        .set(attendance.toMap());
+  }
+
   // Get today's attendance for employee
   Future<Attendance?> getTodayAttendance(String employeeId) async {
     final now = DateTime.now();

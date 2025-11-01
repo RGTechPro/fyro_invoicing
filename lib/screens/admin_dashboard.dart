@@ -571,6 +571,17 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                       ),
                       const SizedBox(width: 16),
 
+                      // Add Attendance button
+                      ElevatedButton.icon(
+                        onPressed: _showAddAttendanceDialog,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+
                       // Date navigation buttons
                       IconButton(
                         onPressed: () {
@@ -2756,6 +2767,808 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  // ============ ADMIN SUPER POWERS: ADD/EDIT CAPABILITIES ============
+
+  void _showAddAttendanceDialog() async {
+    final employees = await _firestoreService.getEmployees().first;
+    if (!mounted) return;
+
+    Employee? selectedEmployee;
+    DateTime selectedDate = DateTime.now();
+    final checkInController = TextEditingController();
+    final checkOutController = TextEditingController();
+    TimeOfDay? checkInTime;
+    TimeOfDay? checkOutTime;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          backgroundColor: AppTheme.darkGrey,
+          title: const Text('Add Attendance Record',
+              style: TextStyle(color: Colors.white)),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Employee selector
+                DropdownButtonFormField<Employee>(
+                  value: selectedEmployee,
+                  dropdownColor: AppTheme.primaryBlack,
+                  decoration: const InputDecoration(
+                    labelText: 'Select Employee',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                  items: employees.map((e) {
+                    return DropdownMenuItem(
+                      value: e,
+                      child: Text(e.name,
+                          style: const TextStyle(color: Colors.white)),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() => selectedEmployee = value);
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Date picker
+                TextFormField(
+                  readOnly: true,
+                  controller: TextEditingController(
+                    text: DateFormat('dd MMM yyyy').format(selectedDate),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Date',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    suffixIcon:
+                        Icon(Icons.calendar_today, color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked != null) {
+                      setState(() => selectedDate = picked);
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Check-in time
+                TextFormField(
+                  controller: checkInController,
+                  readOnly: true,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Check-In Time',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    suffixIcon:
+                        Icon(Icons.access_time, color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                  onTap: () async {
+                    final picked = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        checkInTime = picked;
+                        checkInController.text = picked.format(context);
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Check-out time
+                TextFormField(
+                  controller: checkOutController,
+                  readOnly: true,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Check-Out Time (Optional)',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    suffixIcon:
+                        Icon(Icons.access_time, color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                  onTap: () async {
+                    final picked = await showTimePicker(
+                      context: context,
+                      initialTime: checkInTime ?? TimeOfDay.now(),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        checkOutTime = picked;
+                        checkOutController.text = picked.format(context);
+                      });
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel',
+                  style: TextStyle(color: AppTheme.mediumGrey)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (selectedEmployee == null || checkInTime == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content:
+                            Text('Please select employee and check-in time')),
+                  );
+                  return;
+                }
+
+                try {
+                  final checkInDateTime = DateTime(
+                    selectedDate.year,
+                    selectedDate.month,
+                    selectedDate.day,
+                    checkInTime!.hour,
+                    checkInTime!.minute,
+                  );
+
+                  DateTime? checkOutDateTime;
+                  if (checkOutTime != null) {
+                    checkOutDateTime = DateTime(
+                      selectedDate.year,
+                      selectedDate.month,
+                      selectedDate.day,
+                      checkOutTime!.hour,
+                      checkOutTime!.minute,
+                    );
+                  }
+
+                  // Create attendance record
+                  await _firestoreService.addManualAttendance(
+                    employeeId: selectedEmployee!.id,
+                    date: selectedDate,
+                    checkInTime: checkInDateTime,
+                    checkOutTime: checkOutDateTime,
+                  );
+
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('✓ Attendance record added!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.secondaryGold,
+              ),
+              child: const Text('Add'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAddWastageDialog() async {
+    final employees = await _firestoreService.getEmployees().first;
+    if (!mounted) return;
+
+    Employee? selectedEmployee;
+    final itemNameController = TextEditingController();
+    final quantityController = TextEditingController();
+    final unitController = TextEditingController(text: 'kg');
+    final estimatedValueController = TextEditingController();
+    final notesController = TextEditingController();
+    String reason = 'employee_consumed';
+    String? consumedBy;
+    final otherPersonController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          backgroundColor: AppTheme.darkGrey,
+          title: const Text('Add Wastage Entry',
+              style: TextStyle(color: Colors.white)),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Employee selector
+                DropdownButtonFormField<Employee>(
+                  value: selectedEmployee,
+                  dropdownColor: AppTheme.primaryBlack,
+                  decoration: const InputDecoration(
+                    labelText: 'Reported By',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                  items: employees.map((e) {
+                    return DropdownMenuItem(
+                      value: e,
+                      child: Text(e.name,
+                          style: const TextStyle(color: Colors.white)),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() => selectedEmployee = value);
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: itemNameController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Item Name',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: TextFormField(
+                        controller: quantityController,
+                        keyboardType: TextInputType.number,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: const InputDecoration(
+                          labelText: 'Quantity',
+                          labelStyle: TextStyle(color: AppTheme.lightGold),
+                          filled: true,
+                          fillColor: AppTheme.primaryBlack,
+                          border: OutlineInputBorder(),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: AppTheme.mediumGrey),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        controller: unitController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: const InputDecoration(
+                          labelText: 'Unit',
+                          labelStyle: TextStyle(color: AppTheme.lightGold),
+                          filled: true,
+                          fillColor: AppTheme.primaryBlack,
+                          border: OutlineInputBorder(),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: AppTheme.mediumGrey),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                DropdownButtonFormField<String>(
+                  value: reason,
+                  dropdownColor: AppTheme.primaryBlack,
+                  decoration: const InputDecoration(
+                    labelText: 'Reason',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'employee_consumed',
+                      child: Text('Employee Consumed',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'other_consumed',
+                      child: Text('Other Person Consumed',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'thrown',
+                      child: Text('Thrown/Spoiled',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      reason = value!;
+                      if (reason != 'employee_consumed') {
+                        consumedBy = null;
+                      }
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                if (reason == 'employee_consumed')
+                  DropdownButtonFormField<String>(
+                    value: consumedBy,
+                    dropdownColor: AppTheme.primaryBlack,
+                    decoration: const InputDecoration(
+                      labelText: 'Consumed By Employee',
+                      labelStyle: TextStyle(color: AppTheme.lightGold),
+                      filled: true,
+                      fillColor: AppTheme.primaryBlack,
+                      border: OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: AppTheme.mediumGrey),
+                      ),
+                    ),
+                    items: employees.map((e) {
+                      return DropdownMenuItem(
+                        value: e.id,
+                        child: Text(e.name,
+                            style: const TextStyle(color: Colors.white)),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => consumedBy = value);
+                    },
+                  ),
+
+                if (reason == 'other_consumed') ...[
+                  TextFormField(
+                    controller: otherPersonController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
+                      labelText: 'Person Name',
+                      labelStyle: TextStyle(color: AppTheme.lightGold),
+                      filled: true,
+                      fillColor: AppTheme.primaryBlack,
+                      border: OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: AppTheme.mediumGrey),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                TextFormField(
+                  controller: estimatedValueController,
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Estimated Value (₹)',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: notesController,
+                  maxLines: 2,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Notes (Optional)',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel',
+                  style: TextStyle(color: AppTheme.mediumGrey)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (selectedEmployee == null ||
+                    itemNameController.text.isEmpty ||
+                    quantityController.text.isEmpty ||
+                    estimatedValueController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Please fill required fields')),
+                  );
+                  return;
+                }
+
+                try {
+                  await _firestoreService.addWastage(
+                    employeeId: selectedEmployee!.id,
+                    employeeName: selectedEmployee!.name,
+                    date: DateTime.now(),
+                    itemName: itemNameController.text,
+                    quantity: double.parse(quantityController.text),
+                    unit: unitController.text,
+                    reason: reason,
+                    consumedBy: consumedBy,
+                    consumedByOther: otherPersonController.text.isEmpty
+                        ? null
+                        : otherPersonController.text,
+                    estimatedValue: double.parse(estimatedValueController.text),
+                    notes: notesController.text.isEmpty
+                        ? null
+                        : notesController.text,
+                  );
+
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('✓ Wastage entry added!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.secondaryGold,
+              ),
+              child: const Text('Add'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAddExpenseDialog() async {
+    final employees = await _firestoreService.getEmployees().first;
+    if (!mounted) return;
+
+    Employee? selectedEmployee;
+    final itemDescController = TextEditingController();
+    final amountController = TextEditingController();
+    final vendorController = TextEditingController();
+    final billNumberController = TextEditingController();
+    final notesController = TextEditingController();
+    String category = 'groceries';
+    String paymentMode = 'cash';
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          backgroundColor: AppTheme.darkGrey,
+          title:
+              const Text('Add Expense', style: TextStyle(color: Colors.white)),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Employee selector
+                DropdownButtonFormField<Employee>(
+                  value: selectedEmployee,
+                  dropdownColor: AppTheme.primaryBlack,
+                  decoration: const InputDecoration(
+                    labelText: 'Reported By',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                  items: employees.map((e) {
+                    return DropdownMenuItem(
+                      value: e,
+                      child: Text(e.name,
+                          style: const TextStyle(color: Colors.white)),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() => selectedEmployee = value);
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                DropdownButtonFormField<String>(
+                  value: category,
+                  dropdownColor: AppTheme.primaryBlack,
+                  decoration: const InputDecoration(
+                    labelText: 'Category',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'groceries',
+                      child: Text('Groceries',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'utilities',
+                      child: Text('Utilities',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'supplies',
+                      child: Text('Supplies',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'transport',
+                      child: Text('Transport',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'maintenance',
+                      child: Text('Maintenance',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'other',
+                      child:
+                          Text('Other', style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() => category = value!);
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: itemDescController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Item Description',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: amountController,
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Amount (₹)',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: vendorController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Vendor/Shop Name',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                DropdownButtonFormField<String>(
+                  value: paymentMode,
+                  dropdownColor: AppTheme.primaryBlack,
+                  decoration: const InputDecoration(
+                    labelText: 'Payment Mode',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'cash',
+                      child:
+                          Text('Cash', style: TextStyle(color: Colors.white)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'card',
+                      child:
+                          Text('Card', style: TextStyle(color: Colors.white)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'upi',
+                      child: Text('UPI', style: TextStyle(color: Colors.white)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'bank_transfer',
+                      child: Text('Bank Transfer',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() => paymentMode = value!);
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: billNumberController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Bill Number (Optional)',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: notesController,
+                  maxLines: 2,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Notes (Optional)',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel',
+                  style: TextStyle(color: AppTheme.mediumGrey)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (selectedEmployee == null ||
+                    itemDescController.text.isEmpty ||
+                    amountController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Please fill required fields')),
+                  );
+                  return;
+                }
+
+                try {
+                  await _firestoreService.addExpense(
+                    employeeId: selectedEmployee!.id,
+                    employeeName: selectedEmployee!.name,
+                    date: DateTime.now(),
+                    category: category,
+                    itemDescription: itemDescController.text,
+                    amount: double.parse(amountController.text),
+                    vendor: vendorController.text.isEmpty
+                        ? null
+                        : vendorController.text,
+                    paymentMode: paymentMode,
+                    billNumber: billNumberController.text.isEmpty
+                        ? null
+                        : billNumberController.text,
+                    notes: notesController.text.isEmpty
+                        ? null
+                        : notesController.text,
+                  );
+
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('✓ Expense added and pending approval!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.secondaryGold,
+              ),
+              child: const Text('Add'),
+            ),
+          ],
+        ),
       ),
     );
   }

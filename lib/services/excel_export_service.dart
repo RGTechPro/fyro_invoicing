@@ -1,4 +1,3 @@
-import 'dart:html' as html;
 import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
 import '../models/order.dart';
@@ -8,6 +7,7 @@ import '../models/leave.dart';
 import '../models/wastage.dart';
 import '../models/expense.dart';
 import '../services/firestore_service.dart';
+import 'file_saver.dart' as file_saver;
 
 enum ExportPeriod { daily, weekly, monthly, custom }
 
@@ -524,13 +524,8 @@ class ExcelExportService {
     return letters[index ~/ 26 - 1] + letters[index % 26];
   }
 
-  static void _downloadFile(List<int> bytes, String filename) {
-    final blob = html.Blob([bytes]);
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    html.AnchorElement(href: url)
-      ..setAttribute('download', filename)
-      ..click();
-    html.Url.revokeObjectUrl(url);
+  static Future<void> _downloadFile(List<int> bytes, String filename) async {
+    await file_saver.saveFile(bytes, filename);
   }
 
   // ============ NEW EMPLOYEE MANAGEMENT EXPORTS ============

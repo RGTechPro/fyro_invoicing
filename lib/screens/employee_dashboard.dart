@@ -294,110 +294,196 @@ class _EmployeeDashboardState extends ConsumerState<EmployeeDashboard> {
 
     final isSmallScreen = MediaQuery.of(context).size.width < 600;
 
-    return Scaffold(
-      backgroundColor: AppTheme.primaryBlack,
-      appBar: AppBar(
-        title: Row(
+    return DefaultTabController(
+      length: 5,
+      child: Scaffold(
+        backgroundColor: AppTheme.primaryBlack,
+        appBar: AppBar(
+          title: Row(
+            children: [
+              const Icon(Icons.local_fire_department),
+              const SizedBox(width: 8),
+              Text(isSmallScreen ? 'BBF' : 'BIRYANI BY FLAME'),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: _handleLogout,
+              tooltip: 'Logout',
+            ),
+          ],
+          bottom: TabBar(
+            isScrollable: isSmallScreen,
+            indicatorColor: AppTheme.secondaryGold,
+            labelColor: AppTheme.secondaryGold,
+            unselectedLabelColor: AppTheme.mediumGrey,
+            tabs: const [
+              Tab(icon: Icon(Icons.home), text: 'Home'),
+              Tab(icon: Icon(Icons.access_time), text: 'Attendance'),
+              Tab(icon: Icon(Icons.beach_access), text: 'Leaves'),
+              Tab(icon: Icon(Icons.delete_outline), text: 'Wastage'),
+              Tab(icon: Icon(Icons.receipt_long), text: 'Expenses'),
+            ],
+          ),
+        ),
+        body: TabBarView(
           children: [
-            const Icon(Icons.local_fire_department),
-            const SizedBox(width: 8),
-            Text(isSmallScreen ? 'BBF' : 'BIRYANI BY FLAME'),
+            _buildHomeTab(isSmallScreen),
+            _buildAttendanceTab(isSmallScreen),
+            _buildLeavesTab(isSmallScreen),
+            _buildWastageTab(isSmallScreen),
+            _buildExpensesTab(isSmallScreen),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _handleLogout,
-            tooltip: 'Logout',
-          ),
-        ],
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Welcome card
-            Card(
-              color: AppTheme.darkGrey,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: isSmallScreen ? 30 : 40,
-                      backgroundColor: AppTheme.secondaryGold,
-                      child: Text(
-                        _currentEmployee!.name[0].toUpperCase(),
-                        style: TextStyle(
-                          fontSize: isSmallScreen ? 24 : 32,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryBlack,
+    );
+  }
+
+  Widget _buildHomeTab(bool isSmallScreen) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Welcome card
+          Card(
+            color: AppTheme.darkGrey,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: isSmallScreen ? 30 : 40,
+                    backgroundColor: AppTheme.secondaryGold,
+                    child: Text(
+                      _currentEmployee!.name[0].toUpperCase(),
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 24 : 32,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryBlack,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Welcome, ${_currentEmployee!.name}!',
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 18 : 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
+                        Text(
+                          _currentEmployee!.email,
+                          style: const TextStyle(
+                            color: AppTheme.lightGold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          'Salary: ₹${_currentEmployee!.salary.toStringAsFixed(0)}/month',
+                          style: const TextStyle(
+                            color: AppTheme.secondaryGold,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Welcome, ${_currentEmployee!.name}!',
-                            style: TextStyle(
-                              fontSize: isSmallScreen ? 18 : 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            _currentEmployee!.email,
-                            style: const TextStyle(
-                              color: AppTheme.lightGold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            'Salary: ₹${_currentEmployee!.salary.toStringAsFixed(0)}/month',
-                            style: const TextStyle(
-                              color: AppTheme.secondaryGold,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
+          ),
+          const SizedBox(height: 16),
 
-            // Attendance card
-            Card(
-              color: AppTheme.darkGrey,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '📅 Today\'s Attendance',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+          // Attendance card
+          Card(
+            color: AppTheme.darkGrey,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '📅 Today\'s Attendance',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  if (_todayAttendance == null)
+                    Center(
+                      child: ElevatedButton.icon(
+                        onPressed: _handleCheckIn,
+                        icon: const Icon(Icons.login),
+                        label: const Text('CHECK IN'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 16,
+                          ),
+                        ),
                       ),
+                    )
+                  else ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Column(
+                          children: [
+                            const Text(
+                              'Check In',
+                              style: TextStyle(color: AppTheme.lightGold),
+                            ),
+                            Text(
+                              DateFormat('hh:mm a')
+                                  .format(_todayAttendance!.checkInTime!),
+                              style: const TextStyle(
+                                color: Colors.green,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (_todayAttendance!.checkOutTime != null)
+                          Column(
+                            children: [
+                              const Text(
+                                'Check Out',
+                                style: TextStyle(color: AppTheme.lightGold),
+                              ),
+                              Text(
+                                DateFormat('hh:mm a')
+                                    .format(_todayAttendance!.checkOutTime!),
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 16),
-                    if (_todayAttendance == null)
+                    if (_todayAttendance!.checkOutTime == null)
                       Center(
                         child: ElevatedButton.icon(
-                          onPressed: _handleCheckIn,
-                          icon: const Icon(Icons.login),
-                          label: const Text('CHECK IN'),
+                          onPressed: _handleCheckOut,
+                          icon: const Icon(Icons.logout),
+                          label: const Text('CHECK OUT'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: Colors.red,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 32,
                               vertical: 16,
@@ -405,250 +491,579 @@ class _EmployeeDashboardState extends ConsumerState<EmployeeDashboard> {
                           ),
                         ),
                       )
-                    else ...[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Column(
-                            children: [
-                              const Text(
-                                'Check In',
-                                style: TextStyle(color: AppTheme.lightGold),
-                              ),
-                              Text(
-                                DateFormat('hh:mm a')
-                                    .format(_todayAttendance!.checkInTime!),
-                                style: const TextStyle(
-                                  color: Colors.green,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                    else
+                      Center(
+                        child: Text(
+                          'Total Hours: ${_todayAttendance!.totalHours.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            color: AppTheme.secondaryGold,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                          if (_todayAttendance!.checkOutTime != null)
-                            Column(
-                              children: [
-                                const Text(
-                                  'Check Out',
-                                  style: TextStyle(color: AppTheme.lightGold),
-                                ),
-                                Text(
-                                  DateFormat('hh:mm a')
-                                      .format(_todayAttendance!.checkOutTime!),
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
+                        ),
+                      ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Leave summary card
+          Card(
+            color: AppTheme.darkGrey,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        '🏖️ Leave Balance',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: _showLeaveApplicationDialog,
+                        icon: const Icon(Icons.add, size: 16),
+                        label: const Text('Apply'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.secondaryGold,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildStatItem(
+                        'Total',
+                        _currentEmployee!.totalLeavesPerMonth.toString(),
+                        Colors.blue,
+                      ),
+                      _buildStatItem(
+                        'Used',
+                        _currentEmployee!.usedLeaves.toString(),
+                        Colors.red,
+                      ),
+                      _buildStatItem(
+                        'Remaining',
+                        _currentEmployee!.remainingLeaves.toString(),
+                        Colors.green,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Quick Actions
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _showAddWastageDialog,
+                  icon: const Icon(Icons.delete_outline),
+                  label: const Text('Add Wastage'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _showAddExpenseDialog,
+                  icon: const Icon(Icons.receipt_long),
+                  label: const Text('Add Expense'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAttendanceTab(bool isSmallScreen) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            'My Attendance History',
+            style: TextStyle(
+              fontSize: isSmallScreen ? 18 : 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        Expanded(
+          child: StreamBuilder<List<Attendance>>(
+            stream: _firestoreService
+                .getEmployeeAttendance(_currentEmployee!.id),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'No attendance records yet',
+                    style: TextStyle(color: AppTheme.mediumGrey),
+                  ),
+                );
+              }
+
+              final attendanceList = snapshot.data!;
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: attendanceList.length,
+                itemBuilder: (context, index) {
+                  final attendance = attendanceList[index];
+                  return Card(
+                    color: AppTheme.darkGrey,
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: attendance.checkOutTime != null
+                            ? Colors.green
+                            : Colors.orange,
+                        child: Icon(
+                          attendance.checkOutTime != null
+                              ? Icons.check_circle
+                              : Icons.access_time,
+                          color: Colors.white,
+                        ),
+                      ),
+                      title: Text(
+                        DateFormat('EEEE, dd MMM yyyy')
+                            .format(attendance.date),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'In: ${attendance.checkInTime != null ? DateFormat('hh:mm a').format(attendance.checkInTime!) : 'N/A'}',
+                            style: const TextStyle(color: AppTheme.lightGold),
+                          ),
+                          if (attendance.checkOutTime != null)
+                            Text(
+                              'Out: ${DateFormat('hh:mm a').format(attendance.checkOutTime!)}',
+                              style: const TextStyle(color: AppTheme.lightGold),
                             ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      if (_todayAttendance!.checkOutTime == null)
-                        Center(
-                          child: ElevatedButton.icon(
-                            onPressed: _handleCheckOut,
-                            icon: const Icon(Icons.logout),
-                            label: const Text('CHECK OUT'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 32,
-                                vertical: 16,
+                      trailing: attendance.checkOutTime != null
+                          ? Chip(
+                              label: Text(
+                                '${attendance.totalHours.toStringAsFixed(1)}h',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
+                              backgroundColor: AppTheme.secondaryGold,
+                            )
+                          : const Chip(
+                              label: Text(
+                                'In Progress',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                ),
+                              ),
+                              backgroundColor: Colors.orange,
+                            ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLeavesTab(bool isSmallScreen) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'My Leave Applications',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 18 : 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: _showLeaveApplicationDialog,
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Apply'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.secondaryGold,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: StreamBuilder<List<Leave>>(
+            stream: _firestoreService.getEmployeeLeaves(_currentEmployee!.id),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'No leave applications yet',
+                    style: TextStyle(color: AppTheme.mediumGrey),
+                  ),
+                );
+              }
+
+              final leaves = snapshot.data!;
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: leaves.length,
+                itemBuilder: (context, index) {
+                  final leave = leaves[index];
+                  return Card(
+                    color: AppTheme.darkGrey,
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: leave.isPending
+                            ? Colors.orange
+                            : leave.isApproved
+                                ? Colors.green
+                                : Colors.red,
+                        child: Icon(
+                          leave.isPending
+                              ? Icons.pending
+                              : leave.isApproved
+                                  ? Icons.check_circle
+                                  : Icons.cancel,
+                          color: Colors.white,
+                        ),
+                      ),
+                      title: Text(
+                        '${DateFormat('dd MMM').format(leave.fromDate)} - ${DateFormat('dd MMM yyyy').format(leave.toDate)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            leave.reason,
+                            style: const TextStyle(color: AppTheme.lightGold),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                      trailing: Chip(
+                        label: Text(
+                          leave.status.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        backgroundColor: leave.isPending
+                            ? Colors.orange
+                            : leave.isApproved
+                                ? Colors.green
+                                : Colors.red,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWastageTab(bool isSmallScreen) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'My Wastage Reports',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 18 : 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: _showAddWastageDialog,
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Add'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: StreamBuilder<List<Wastage>>(
+            stream:
+                _firestoreService.getWastagesByEmployee(_currentEmployee!.id),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'No wastage records yet',
+                    style: TextStyle(color: AppTheme.mediumGrey),
+                  ),
+                );
+              }
+
+              final wastages = snapshot.data!;
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: wastages.length,
+                itemBuilder: (context, index) {
+                  final wastage = wastages[index];
+                  return Card(
+                    color: AppTheme.darkGrey,
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.orange,
+                        child: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.white,
+                        ),
+                      ),
+                      title: Text(
+                        wastage.itemName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Qty: ${wastage.quantity} ${wastage.unit}',
+                            style: const TextStyle(color: AppTheme.lightGold),
+                          ),
+                          Text(
+                            'Reason: ${wastage.reason}',
+                            style: const TextStyle(color: AppTheme.lightGold),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            DateFormat('dd MMM yyyy, hh:mm a')
+                                .format(wastage.date),
+                            style: const TextStyle(
+                              color: AppTheme.mediumGrey,
+                              fontSize: 12,
                             ),
                           ),
-                        )
-                      else
-                        Center(
-                          child: Text(
-                            'Total Hours: ${_todayAttendance!.totalHours.toStringAsFixed(2)}',
+                        ],
+                      ),
+                      trailing: Text(
+                        '₹${wastage.estimatedValue?.toStringAsFixed(0) ?? '0'}',
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExpensesTab(bool isSmallScreen) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'My Expense Claims',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 18 : 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: _showAddExpenseDialog,
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Add'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: StreamBuilder<List<Expense>>(
+            stream: _firestoreService.getExpensesByEmployee(_currentEmployee!.id),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'No expense claims yet',
+                    style: TextStyle(color: AppTheme.mediumGrey),
+                  ),
+                );
+              }
+
+              final expenses = snapshot.data!;
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: expenses.length,
+                itemBuilder: (context, index) {
+                  final expense = expenses[index];
+                  return Card(
+                    color: AppTheme.darkGrey,
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: expense.isPending
+                            ? Colors.orange
+                            : Colors.green,
+                        child: Icon(
+                          expense.isPending
+                              ? Icons.pending
+                              : Icons.check_circle,
+                          color: Colors.white,
+                        ),
+                      ),
+                      title: Text(
+                        expense.itemDescription,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Category: ${expense.category}',
+                            style: const TextStyle(color: AppTheme.lightGold),
+                          ),
+                          if (expense.vendor != null)
+                            Text(
+                              'Vendor: ${expense.vendor}',
+                              style: const TextStyle(color: AppTheme.lightGold),
+                            ),
+                          Text(
+                            DateFormat('dd MMM yyyy').format(expense.date),
+                            style: const TextStyle(
+                              color: AppTheme.mediumGrey,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '₹${expense.amount.toStringAsFixed(0)}',
                             style: const TextStyle(
                               color: AppTheme.secondaryGold,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Leave summary card
-            Card(
-              color: AppTheme.darkGrey,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          '🏖️ Leave Balance',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        ElevatedButton.icon(
-                          onPressed: _showLeaveApplicationDialog,
-                          icon: const Icon(Icons.add, size: 16),
-                          label: const Text('Apply'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.secondaryGold,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
+                          Chip(
+                            label: Text(
+                              expense.statusText.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
+                            backgroundColor: expense.isPending
+                                ? Colors.orange
+                                : Colors.green,
+                            padding: EdgeInsets.zero,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildStatItem(
-                          'Total',
-                          _currentEmployee!.totalLeavesPerMonth.toString(),
-                          Colors.blue,
-                        ),
-                        _buildStatItem(
-                          'Used',
-                          _currentEmployee!.usedLeaves.toString(),
-                          Colors.red,
-                        ),
-                        _buildStatItem(
-                          'Remaining',
-                          _currentEmployee!.remainingLeaves.toString(),
-                          Colors.green,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Quick Actions
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _showAddWastageDialog,
-                    icon: const Icon(Icons.delete_outline),
-                    label: const Text('Add Wastage'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _showAddExpenseDialog,
-                    icon: const Icon(Icons.receipt_long),
-                    label: const Text('Add Expense'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Leave history
-            const Text(
-              'Leave History',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            StreamBuilder<List<Leave>>(
-              stream: _firestoreService.getEmployeeLeaves(_currentEmployee!.id),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Card(
-                    color: AppTheme.darkGrey,
-                    child: Padding(
-                      padding: EdgeInsets.all(24),
-                      child: Center(
-                        child: Text(
-                          'No leave applications yet',
-                          style: TextStyle(color: AppTheme.mediumGrey),
-                        ),
+                        ],
                       ),
                     ),
                   );
-                }
-
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    final leave = snapshot.data![index];
-                    return Card(
-                      color: AppTheme.darkGrey,
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ListTile(
-                        title: Text(
-                          '${DateFormat('dd MMM').format(leave.fromDate)} - ${DateFormat('dd MMM yyyy').format(leave.toDate)}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        subtitle: Text(
-                          leave.reason,
-                          style: const TextStyle(color: AppTheme.lightGold),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing: Chip(
-                          label: Text(
-                            leave.status.toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          backgroundColor: leave.isPending
-                              ? Colors.orange
-                              : leave.isApproved
-                                  ? Colors.green
-                                  : Colors.red,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ],
+                },
+              );
+            },
+          ),
         ),
-      ),
+      ],
     );
   }
 

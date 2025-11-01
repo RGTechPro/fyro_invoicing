@@ -618,8 +618,8 @@ class _EmployeeDashboardState extends ConsumerState<EmployeeDashboard> {
         ),
         Expanded(
           child: StreamBuilder<List<Attendance>>(
-            stream: _firestoreService
-                .getEmployeeAttendance(_currentEmployee!.id),
+            stream:
+                _firestoreService.getEmployeeAttendance(_currentEmployee!.id),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -656,8 +656,7 @@ class _EmployeeDashboardState extends ConsumerState<EmployeeDashboard> {
                         ),
                       ),
                       title: Text(
-                        DateFormat('EEEE, dd MMM yyyy')
-                            .format(attendance.date),
+                        DateFormat('EEEE, dd MMM yyyy').format(attendance.date),
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -962,7 +961,8 @@ class _EmployeeDashboardState extends ConsumerState<EmployeeDashboard> {
         ),
         Expanded(
           child: StreamBuilder<List<Expense>>(
-            stream: _firestoreService.getExpensesByEmployee(_currentEmployee!.id),
+            stream:
+                _firestoreService.getExpensesByEmployee(_currentEmployee!.id),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -988,9 +988,8 @@ class _EmployeeDashboardState extends ConsumerState<EmployeeDashboard> {
                     margin: const EdgeInsets.only(bottom: 8),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: expense.isPending
-                            ? Colors.orange
-                            : Colors.green,
+                        backgroundColor:
+                            expense.isPending ? Colors.orange : Colors.green,
                         child: Icon(
                           expense.isPending
                               ? Icons.pending

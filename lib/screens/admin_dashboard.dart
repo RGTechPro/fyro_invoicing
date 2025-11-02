@@ -556,33 +556,38 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Date selector header
+                  // Title row
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: Text(
-                          'Attendance - ${DateFormat('dd MMM yyyy').format(selectedDate)}',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                      Text(
+                        'Attendance',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-                      const SizedBox(width: 16),
-
-                      // Add Attendance button
                       ElevatedButton.icon(
                         onPressed: _showAddAttendanceDialog,
-                        icon: const Icon(Icons.add),
+                        icon: const Icon(Icons.add, size: 18),
                         label: const Text('Add'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
 
-                      // Date navigation buttons
+                  // Date selector row
+                  Row(
+                    children: [
+                      // Previous day
                       IconButton(
                         onPressed: () {
                           setState(() {
@@ -595,43 +600,48 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                         tooltip: 'Previous Day',
                       ),
 
-                      // Calendar picker button
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          final picked = await showDatePicker(
-                            context: context,
-                            initialDate: _selectedAttendanceDate,
-                            firstDate: DateTime(2020),
-                            lastDate: DateTime.now(),
-                            builder: (context, child) {
-                              return Theme(
-                                data: ThemeData.dark().copyWith(
-                                  colorScheme: ColorScheme.dark(
-                                    primary: AppTheme.secondaryGold,
-                                    onPrimary: Colors.black,
-                                    surface: AppTheme.darkGrey,
-                                    onSurface: Colors.white,
+                      // Date display with calendar picker
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: _selectedAttendanceDate,
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime.now(),
+                              builder: (context, child) {
+                                return Theme(
+                                  data: ThemeData.dark().copyWith(
+                                    colorScheme: ColorScheme.dark(
+                                      primary: AppTheme.secondaryGold,
+                                      onPrimary: Colors.black,
+                                      surface: AppTheme.darkGrey,
+                                      onSurface: Colors.white,
+                                    ),
                                   ),
-                                ),
-                                child: child!,
-                              );
-                            },
-                          );
+                                  child: child!,
+                                );
+                              },
+                            );
 
-                          if (picked != null) {
-                            setState(() {
-                              _selectedAttendanceDate = picked;
-                            });
-                          }
-                        },
-                        icon: const Icon(Icons.calendar_today),
-                        label: const Text('Select Date'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.secondaryGold,
-                          foregroundColor: Colors.black,
+                            if (picked != null) {
+                              setState(() {
+                                _selectedAttendanceDate = picked;
+                              });
+                            }
+                          },
+                          icon: const Icon(Icons.calendar_today),
+                          label: Text(
+                            DateFormat('dd MMM yyyy').format(selectedDate),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.secondaryGold,
+                            foregroundColor: Colors.black,
+                          ),
                         ),
                       ),
 
+                      // Next day
                       IconButton(
                         onPressed: _selectedAttendanceDate.isBefore(
                                 DateTime.now()
@@ -659,7 +669,10 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                           },
                           child: Text(
                             'TODAY',
-                            style: TextStyle(color: AppTheme.secondaryGold),
+                            style: TextStyle(
+                              color: AppTheme.secondaryGold,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                     ],
@@ -779,6 +792,16 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                                   ),
                                 ),
                               const SizedBox(width: 8),
+                              // Edit button for existing attendance
+                              if (empAttendance.checkInTime != null)
+                                IconButton(
+                                  icon: const Icon(Icons.edit, size: 20),
+                                  color: AppTheme.secondaryGold,
+                                  onPressed: () =>
+                                      _showEditAttendanceDialog(empAttendance),
+                                  tooltip: 'Edit Attendance',
+                                ),
+                              const SizedBox(width: 4),
                               Icon(
                                 Icons.calendar_month,
                                 color: AppTheme.secondaryGold,
@@ -1583,13 +1606,14 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      
+
                       // Export button
                       ElevatedButton.icon(
                         onPressed: () => _showGenericExportDialog(
                           'Export Wastage Report',
-                          (start, end) => ExcelExportService.exportWastageReport(
-                              start, end, _firestoreService),
+                          (start, end) =>
+                              ExcelExportService.exportWastageReport(
+                                  start, end, _firestoreService),
                         ),
                         icon: const Icon(Icons.download),
                         label: const Text('Export'),
@@ -1975,13 +1999,14 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      
+
                       // Export button
                       ElevatedButton.icon(
                         onPressed: () => _showGenericExportDialog(
                           'Export Expenses Report',
-                          (start, end) => ExcelExportService.exportExpensesReport(
-                              start, end, _firestoreService),
+                          (start, end) =>
+                              ExcelExportService.exportExpensesReport(
+                                  start, end, _firestoreService),
                         ),
                         icon: const Icon(Icons.download),
                         label: const Text('Export'),
@@ -3016,6 +3041,195 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                 backgroundColor: AppTheme.secondaryGold,
               ),
               child: const Text('Add'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showEditAttendanceDialog(Attendance attendance) async {
+    final employees = await _firestoreService.getEmployees().first;
+    if (!mounted) return;
+
+    final employee = employees.firstWhere((e) => e.id == attendance.employeeId);
+    final checkInController = TextEditingController();
+    final checkOutController = TextEditingController();
+    TimeOfDay? checkInTime;
+    TimeOfDay? checkOutTime;
+
+    // Initialize with existing values
+    if (attendance.checkInTime != null) {
+      checkInTime = TimeOfDay.fromDateTime(attendance.checkInTime!);
+      checkInController.text = checkInTime.format(context);
+    }
+    if (attendance.checkOutTime != null) {
+      checkOutTime = TimeOfDay.fromDateTime(attendance.checkOutTime!);
+      checkOutController.text = checkOutTime.format(context);
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          backgroundColor: AppTheme.darkGrey,
+          title: Text(
+            'Edit Attendance - ${employee.name}',
+            style: const TextStyle(color: Colors.white),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Date display (read-only)
+                TextFormField(
+                  readOnly: true,
+                  initialValue:
+                      DateFormat('dd MMM yyyy').format(attendance.date),
+                  style: const TextStyle(color: AppTheme.mediumGrey),
+                  decoration: const InputDecoration(
+                    labelText: 'Date',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    suffixIcon:
+                        Icon(Icons.calendar_today, color: AppTheme.mediumGrey),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Check-in time
+                TextFormField(
+                  controller: checkInController,
+                  readOnly: true,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Check-In Time',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    suffixIcon:
+                        Icon(Icons.access_time, color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                  onTap: () async {
+                    final picked = await showTimePicker(
+                      context: context,
+                      initialTime: checkInTime ?? TimeOfDay.now(),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        checkInTime = picked;
+                        checkInController.text = picked.format(context);
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Check-out time
+                TextFormField(
+                  controller: checkOutController,
+                  readOnly: true,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Check-Out Time (Optional)',
+                    labelStyle: TextStyle(color: AppTheme.lightGold),
+                    suffixIcon:
+                        Icon(Icons.access_time, color: AppTheme.lightGold),
+                    filled: true,
+                    fillColor: AppTheme.primaryBlack,
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.mediumGrey),
+                    ),
+                  ),
+                  onTap: () async {
+                    final picked = await showTimePicker(
+                      context: context,
+                      initialTime:
+                          checkOutTime ?? checkInTime ?? TimeOfDay.now(),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        checkOutTime = picked;
+                        checkOutController.text = picked.format(context);
+                      });
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel',
+                  style: TextStyle(color: AppTheme.mediumGrey)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (checkInTime == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Please select check-in time')),
+                  );
+                  return;
+                }
+
+                try {
+                  final checkInDateTime = DateTime(
+                    attendance.date.year,
+                    attendance.date.month,
+                    attendance.date.day,
+                    checkInTime!.hour,
+                    checkInTime!.minute,
+                  );
+
+                  DateTime? checkOutDateTime;
+                  if (checkOutTime != null) {
+                    checkOutDateTime = DateTime(
+                      attendance.date.year,
+                      attendance.date.month,
+                      attendance.date.day,
+                      checkOutTime!.hour,
+                      checkOutTime!.minute,
+                    );
+                  }
+
+                  // Update attendance record
+                  await _firestoreService.updateAttendance(
+                    attendanceId: attendance.id,
+                    checkInTime: checkInDateTime,
+                    checkOutTime: checkOutDateTime,
+                  );
+
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('✓ Attendance updated!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.secondaryGold,
+              ),
+              child: const Text('Update'),
             ),
           ],
         ),

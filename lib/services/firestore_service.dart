@@ -190,7 +190,12 @@ class FirestoreService {
     // Calculate total hours if check-out time is provided
     double? totalHours;
     if (checkOutTime != null) {
-      totalHours = checkOutTime.difference(checkInTime).inMinutes / 60;
+      double hours = checkOutTime.difference(checkInTime).inMinutes / 60;
+      // Fix negative hours when shift crosses midnight (e.g., 6pm to 2am)
+      if (hours < 0) {
+        hours += 24; // Add 24 hours for next day
+      }
+      totalHours = hours;
     }
 
     final attendance = Attendance(
@@ -207,6 +212,35 @@ class FirestoreService {
         .collection('attendance')
         .doc(attendanceId)
         .set(attendance.toMap());
+  }
+
+  // Update existing attendance record
+  Future<void> updateAttendance({
+    required String attendanceId,
+    required DateTime checkInTime,
+    DateTime? checkOutTime,
+  }) async {
+    // Calculate total hours if check-out time is provided
+    double? totalHours;
+    if (checkOutTime != null) {
+      double hours = checkOutTime.difference(checkInTime).inMinutes / 60;
+      // Fix negative hours when shift crosses midnight
+      if (hours < 0) {
+        hours += 24;
+      }
+      totalHours = hours;
+    }
+
+    final updates = <String, dynamic>{
+      'checkInTime': checkInTime.toIso8601String(),
+      'totalHours': totalHours ?? 0,
+    };
+
+    if (checkOutTime != null) {
+      updates['checkOutTime'] = checkOutTime.toIso8601String();
+    }
+
+    await _firestore.collection('attendance').doc(attendanceId).update(updates);
   }
 
   // Get today's attendance for employee

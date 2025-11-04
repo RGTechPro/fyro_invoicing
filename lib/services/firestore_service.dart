@@ -183,8 +183,9 @@ class FirestoreService {
     final now = DateTime.now();
 
     // Get the attendance record
-    final doc = await _firestore.collection('attendance').doc(attendanceId).get();
-    
+    final doc =
+        await _firestore.collection('attendance').doc(attendanceId).get();
+
     if (!doc.exists) {
       throw Exception('Attendance record not found');
     }
@@ -216,27 +217,32 @@ class FirestoreService {
 
   // Get incomplete attendance (checked in but not checked out)
   Future<Attendance?> getIncompleteAttendance(String employeeId) async {
+    // Get all attendance records for this employee (without orderBy to avoid index requirement)
     final snapshot = await _firestore
         .collection('attendance')
         .where('employeeId', isEqualTo: employeeId)
-        .where('checkOutTime', isNull: true)
-        .orderBy('date', descending: true)
-        .limit(1)
         .get();
 
     if (snapshot.docs.isEmpty) return null;
-    
-    final attendance = Attendance.fromMap(snapshot.docs.first.data());
-    
-    // Only return if it's from a previous day (not today)
+
+    // Filter and sort in code
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    
-    if (attendance.date.isBefore(today)) {
-      return attendance;
-    }
-    
-    return null;
+
+    final incompleteAttendances = snapshot.docs
+        .map((doc) => Attendance.fromMap(doc.data()))
+        .where((a) =>
+            a.checkOutTime == null && // No checkout
+            a.date.isBefore(today)) // From previous day
+        .toList();
+
+    // Sort by date descending (most recent first)
+    incompleteAttendances.sort((a, b) => b.date.compareTo(a.date));
+
+    // Return the most recent incomplete attendance
+    return incompleteAttendances.isNotEmpty
+        ? incompleteAttendances.first
+        : null;
   }
 
   // Admin: Add manual attendance record
@@ -339,9 +345,14 @@ class FirestoreService {
           query.where('date', isLessThanOrEqualTo: endDate.toIso8601String());
     }
 
-    return query.snapshots().map((snapshot) => snapshot.docs
-        .map((doc) => Attendance.fromMap(doc.data() as Map<String, dynamic>))
-        .toList());
+    return query.snapshots().map((snapshot) {
+      final attendances = snapshot.docs
+          .map((doc) => Attendance.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+      // Sort by date descending (latest first) in code to avoid needing index
+      attendances.sort((a, b) => b.date.compareTo(a.date));
+      return attendances;
+    });
   }
 
   // Get all attendance records (for admin)
@@ -619,10 +630,14 @@ class FirestoreService {
     return _firestore
         .collection('wastages')
         .where('employeeId', isEqualTo: employeeId)
-        .orderBy('date', descending: true)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Wastage.fromMap(doc.data())).toList());
+        .map((snapshot) {
+      final wastages =
+          snapshot.docs.map((doc) => Wastage.fromMap(doc.data())).toList();
+      // Sort by date in code to avoid needing Firestore index
+      wastages.sort((a, b) => b.date.compareTo(a.date));
+      return wastages;
+    });
   }
 
   // Get wastages by date range
@@ -692,10 +707,14 @@ class FirestoreService {
     return _firestore
         .collection('expenses')
         .where('employeeId', isEqualTo: employeeId)
-        .orderBy('date', descending: true)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Expense.fromMap(doc.data())).toList());
+        .map((snapshot) {
+      final expenses =
+          snapshot.docs.map((doc) => Expense.fromMap(doc.data())).toList();
+      // Sort by date in code to avoid needing Firestore index
+      expenses.sort((a, b) => b.date.compareTo(a.date));
+      return expenses;
+    });
   }
 
   // Get pending expenses (for admin approval)

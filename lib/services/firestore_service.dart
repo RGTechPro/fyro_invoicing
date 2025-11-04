@@ -178,6 +178,67 @@ class FirestoreService {
     return updatedAttendance;
   }
 
+  // Check out by attendance ID (for incomplete previous day attendance)
+  Future<Attendance> checkOutById(String attendanceId) async {
+    final now = DateTime.now();
+
+    // Get the attendance record
+    final doc = await _firestore.collection('attendance').doc(attendanceId).get();
+    
+    if (!doc.exists) {
+      throw Exception('Attendance record not found');
+    }
+
+    final attendance = Attendance.fromMap(doc.data()!);
+
+    if (attendance.checkOutTime != null) {
+      throw Exception('Already checked out');
+    }
+
+    // Calculate hours, handling midnight crossover
+    double hours = now.difference(attendance.checkInTime!).inMinutes / 60;
+    if (hours < 0) {
+      hours += 24;
+    }
+
+    final updatedAttendance = attendance.copyWith(
+      checkOutTime: now,
+      totalHours: hours,
+    );
+
+    await _firestore
+        .collection('attendance')
+        .doc(attendanceId)
+        .update(updatedAttendance.toMap());
+
+    return updatedAttendance;
+  }
+
+  // Get incomplete attendance (checked in but not checked out)
+  Future<Attendance?> getIncompleteAttendance(String employeeId) async {
+    final snapshot = await _firestore
+        .collection('attendance')
+        .where('employeeId', isEqualTo: employeeId)
+        .where('checkOutTime', isNull: true)
+        .orderBy('date', descending: true)
+        .limit(1)
+        .get();
+
+    if (snapshot.docs.isEmpty) return null;
+    
+    final attendance = Attendance.fromMap(snapshot.docs.first.data());
+    
+    // Only return if it's from a previous day (not today)
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    
+    if (attendance.date.isBefore(today)) {
+      return attendance;
+    }
+    
+    return null;
+  }
+
   // Admin: Add manual attendance record
   Future<void> addManualAttendance({
     required String employeeId,

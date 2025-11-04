@@ -23,6 +23,7 @@ class _EmployeeDashboardState extends ConsumerState<EmployeeDashboard> {
   final FirestoreService _firestoreService = FirestoreService();
   Employee? _currentEmployee;
   Attendance? _todayAttendance;
+  Attendance? _incompleteAttendance; // For previous day's incomplete check-out
   bool _isLoading = true;
 
   @override
@@ -35,11 +36,17 @@ class _EmployeeDashboardState extends ConsumerState<EmployeeDashboard> {
     try {
       final employee = await _authService.getCurrentEmployee();
       if (employee != null) {
+        // Get today's attendance
         final attendance =
             await _firestoreService.getTodayAttendance(employee.id);
+        
+        // Check for incomplete attendance from previous days
+        final incomplete = await _firestoreService.getIncompleteAttendance(employee.id);
+        
         setState(() {
           _currentEmployee = employee;
           _todayAttendance = attendance;
+          _incompleteAttendance = incomplete;
           _isLoading = false;
         });
       }
@@ -53,7 +60,10 @@ class _EmployeeDashboardState extends ConsumerState<EmployeeDashboard> {
 
     try {
       final attendance = await _firestoreService.checkIn(_currentEmployee!.id);
-      setState(() => _todayAttendance = attendance);
+      setState(() {
+        _todayAttendance = attendance;
+        _incompleteAttendance = null; // Clear incomplete after check-in
+      });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -79,8 +89,19 @@ class _EmployeeDashboardState extends ConsumerState<EmployeeDashboard> {
     if (_currentEmployee == null) return;
 
     try {
-      final attendance = await _firestoreService.checkOut(_currentEmployee!.id);
-      setState(() => _todayAttendance = attendance);
+      // Determine which attendance to check out (incomplete or today's)
+      final attendanceToCheckOut = _incompleteAttendance ?? _todayAttendance;
+      if (attendanceToCheckOut == null) return;
+
+      final attendance = await _firestoreService.checkOutById(attendanceToCheckOut.id);
+      
+      setState(() {
+        if (_incompleteAttendance != null) {
+          _incompleteAttendance = null; // Clear incomplete after check-out
+        } else {
+          _todayAttendance = attendance;
+        }
+      });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -419,7 +440,62 @@ class _EmployeeDashboardState extends ConsumerState<EmployeeDashboard> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  if (_todayAttendance == null)
+                  
+                  // Show incomplete attendance warning
+                  if (_incompleteAttendance != null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.2),
+                        border: Border.all(color: Colors.orange),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.warning, color: Colors.orange, size: 20),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'Incomplete Check-out',
+                                style: TextStyle(
+                                  color: Colors.orange,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'You checked in on ${DateFormat('dd MMM yyyy').format(_incompleteAttendance!.date)} at ${DateFormat('hh:mm a').format(_incompleteAttendance!.checkInTime!)} but haven\'t checked out yet.',
+                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                          ),
+                          const SizedBox(height: 12),
+                          Center(
+                            child: ElevatedButton.icon(
+                              onPressed: _handleCheckOut,
+                              icon: const Icon(Icons.logout),
+                              label: const Text('CHECK OUT NOW'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orange,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 32,
+                                  vertical: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Divider(color: AppTheme.mediumGrey),
+                    const SizedBox(height: 16),
+                  ],
+                  
+                  // Today's attendance section
+                  if (_incompleteAttendance == null && _todayAttendance == null)
                     Center(
                       child: ElevatedButton.icon(
                         onPressed: _handleCheckIn,
@@ -434,7 +510,7 @@ class _EmployeeDashboardState extends ConsumerState<EmployeeDashboard> {
                         ),
                       ),
                     )
-                  else ...[
+                  else if (_incompleteAttendance == null && _todayAttendance != null) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
